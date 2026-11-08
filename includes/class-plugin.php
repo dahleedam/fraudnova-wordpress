@@ -22,6 +22,13 @@ class Plugin {
 	private static $instance = null;
 
 	/**
+	 * Settings instance.
+	 *
+	 * @var Settings|null
+	 */
+	private $settings = null;
+
+	/**
 	 * Constructor.
 	 */
 	private function __construct() {}
@@ -36,6 +43,18 @@ class Plugin {
 			self::$instance = new self();
 		}
 		return self::$instance;
+	}
+
+	/**
+	 * Get the settings object.
+	 *
+	 * @return Settings
+	 */
+	public function settings(): Settings {
+		if ( null === $this->settings ) {
+			$this->settings = new Settings();
+		}
+		return $this->settings;
 	}
 
 	/**
