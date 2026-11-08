@@ -53,6 +53,12 @@ class Admin {
 
 		( new Ajax( $this->plugin ) )->register();
 		( new Notices( $this->plugin ) )->register();
+
+		if ( class_exists( 'WooCommerce' ) ) {
+			( new Order_Meta_Box() )->register();
+			( new Order_List_Column() )->register();
+			( new Recheck( $this->plugin ) )->register();
+		}
 	}
 
 	/**

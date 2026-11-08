@@ -107,6 +107,10 @@ class WC_Order {
 		return count( $this->notes );
 	}
 
+	public function get_edit_order_url() {
+		return 'https://example.test/wp-admin/post.php?post=' . $this->id . '&action=edit';
+	}
+
 	public function get_meta_data() {
 		return $this->meta;
 	}

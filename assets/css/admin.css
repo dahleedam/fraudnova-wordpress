@@ -89,3 +89,11 @@
 	color: #a7aaad;
 	font-weight: 400;
 }
+
+.fraudnova-order-result {
+	margin: 0 0 0.5em;
+}
+
+.fraudnova-order-result .fraudnova-pill {
+	margin-right: 2px;
+}
