@@ -29,6 +29,13 @@ class Plugin {
 	private $settings = null;
 
 	/**
+	 * API client instance.
+	 *
+	 * @var Api_Client|null
+	 */
+	private $api_client = null;
+
+	/**
 	 * Constructor.
 	 */
 	private function __construct() {}
@@ -55,6 +62,18 @@ class Plugin {
 			$this->settings = new Settings();
 		}
 		return $this->settings;
+	}
+
+	/**
+	 * Get the API client.
+	 *
+	 * @return Api_Client
+	 */
+	public function api_client(): Api_Client {
+		if ( null === $this->api_client ) {
+			$this->api_client = new Api_Client( $this->settings() );
+		}
+		return $this->api_client;
 	}
 
 	/**
