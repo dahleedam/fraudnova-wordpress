@@ -36,6 +36,20 @@ class Plugin {
 	private $api_client = null;
 
 	/**
+	 * Activity log instance.
+	 *
+	 * @var Activity_Log|null
+	 */
+	private $log = null;
+
+	/**
+	 * Error state instance.
+	 *
+	 * @var Error_State|null
+	 */
+	private $error_state = null;
+
+	/**
 	 * Constructor.
 	 */
 	private function __construct() {}
@@ -74,6 +88,30 @@ class Plugin {
 			$this->api_client = new Api_Client( $this->settings() );
 		}
 		return $this->api_client;
+	}
+
+	/**
+	 * Get the activity log.
+	 *
+	 * @return Activity_Log
+	 */
+	public function log(): Activity_Log {
+		if ( null === $this->log ) {
+			$this->log = new Activity_Log();
+		}
+		return $this->log;
+	}
+
+	/**
+	 * Get the error state.
+	 *
+	 * @return Error_State
+	 */
+	public function error_state(): Error_State {
+		if ( null === $this->error_state ) {
+			$this->error_state = new Error_State();
+		}
+		return $this->error_state;
 	}
 
 	/**
