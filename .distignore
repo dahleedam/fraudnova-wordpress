@@ -1,0 +1,17 @@
+.git
+.github
+.gitignore
+.distignore
+.editorconfig
+tests
+vendor
+dist
+bin
+composer.json
+composer.lock
+phpcs.xml.dist
+phpunit.xml.dist
+.phpunit.result.cache
+README.md
+CHANGELOG.md
+docs
