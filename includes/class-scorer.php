@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Scores one subject: cache, back-off, time budget, API call and error state.
  */
-final class Scorer {
+class Scorer {
 
 	/**
 	 * API client.

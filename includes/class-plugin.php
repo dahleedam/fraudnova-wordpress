@@ -64,6 +64,13 @@ class Plugin {
 	private $scorer = null;
 
 	/**
+	 * WooCommerce order integration.
+	 *
+	 * @var Integrations\Woocommerce_Orders|null
+	 */
+	private $orders = null;
+
+	/**
 	 * Constructor.
 	 */
 	private function __construct() {}
@@ -153,6 +160,18 @@ class Plugin {
 	}
 
 	/**
+	 * Get the WooCommerce order integration.
+	 *
+	 * @return Integrations\Woocommerce_Orders
+	 */
+	public function orders(): Integrations\Woocommerce_Orders {
+		if ( null === $this->orders ) {
+			$this->orders = new Integrations\Woocommerce_Orders( $this );
+		}
+		return $this->orders;
+	}
+
+	/**
 	 * Hook into WordPress.
 	 *
 	 * @return void
@@ -167,7 +186,11 @@ class Plugin {
 	 *
 	 * @return void
 	 */
-	public function init_modules(): void {}
+	public function init_modules(): void {
+		if ( class_exists( 'WooCommerce' ) ) {
+			$this->orders()->register();
+		}
+	}
 
 	/**
 	 * Declare compatibility with WooCommerce High-Performance Order Storage.
