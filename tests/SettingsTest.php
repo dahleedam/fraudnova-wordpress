@@ -151,6 +151,7 @@ class SettingsTest extends TestCase {
 		$this->assertSame( 'all', $s->sanitize( array( 'order_payment_methods' => 'all' ) )['order_payment_methods'] );
 		$this->assertNull( $s->sanitize( array() )['order_payment_methods'] );
 		$this->assertNull( $s->sanitize( array( 'order_payment_methods' => array() ) )['order_payment_methods'] );
+		$this->assertSame( 'all', $s->sanitize( array( 'order_payment_methods' => array( 'cod', 'all' ) ) )['order_payment_methods'] );
 	}
 
 	public function test_api_key_constant_overrides_option() {

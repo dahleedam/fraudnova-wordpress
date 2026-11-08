@@ -202,6 +202,10 @@ class Plugin {
 		if ( class_exists( 'WPCF7_Submission' ) && $settings->get( 'form_cf7' ) ) {
 			( new Integrations\Contact_Form_7( $this ) )->register();
 		}
+
+		if ( is_admin() ) {
+			( new Admin\Admin( $this ) )->register();
+		}
 	}
 
 	/**

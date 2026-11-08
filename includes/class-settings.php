@@ -227,7 +227,8 @@ class Settings {
 	 * @return string|string[]|null 'all', a list of gateway ids, or null for auto-detect.
 	 */
 	private function sanitize_payment_methods( $value ) {
-		if ( 'all' === $value ) {
+		// The settings form posts the "Every payment method" box as one more list entry.
+		if ( 'all' === $value || ( is_array( $value ) && in_array( 'all', $value, true ) ) ) {
 			return 'all';
 		}
 		if ( ! is_array( $value ) ) {

@@ -1,0 +1,91 @@
+/* FraudNova admin styles. */
+
+.fraudnova-settings .fraudnova-tabs {
+	margin-bottom: 1em;
+}
+
+.fraudnova-settings .notice.inline {
+	margin: 1em 0;
+}
+
+.fraudnova-test-result {
+	display: inline-block;
+	margin-left: 0.5em;
+	vertical-align: middle;
+}
+
+.fraudnova-test-result.is-ok {
+	color: #00731f;
+}
+
+.fraudnova-test-result.is-error {
+	color: #b32d2e;
+}
+
+.fraudnova-option-help {
+	margin: 0 0 0.75em 1.75em !important;
+}
+
+.fraudnova-rules td {
+	padding: 2px 12px 2px 0;
+}
+
+.fraudnova-balance {
+	font-weight: 600;
+}
+
+.fraudnova-activity {
+	margin-bottom: 1em;
+}
+
+.fraudnova-activity td {
+	vertical-align: middle;
+}
+
+.fraudnova-activity code {
+	font-size: 12px;
+	background: transparent;
+	padding: 0;
+}
+
+.fraudnova-nowrap {
+	white-space: nowrap;
+}
+
+.fraudnova-pill {
+	display: inline-block;
+	padding: 1px 8px;
+	border-radius: 999px;
+	font-size: 12px;
+	line-height: 1.6;
+	font-weight: 600;
+	background: #f0f0f1;
+	color: #50575e;
+	white-space: nowrap;
+}
+
+.fraudnova-pill.is-clean {
+	background: #edfaef;
+	color: #00731f;
+}
+
+.fraudnova-pill.is-review {
+	background: #fcf9e8;
+	color: #8a6100;
+}
+
+.fraudnova-pill.is-high {
+	background: #fcf0f1;
+	color: #b32d2e;
+}
+
+.fraudnova-pill.is-unknown {
+	background: #f0f0f1;
+	color: #50575e;
+}
+
+.fraudnova-pill.is-none {
+	background: transparent;
+	color: #a7aaad;
+	font-weight: 400;
+}
