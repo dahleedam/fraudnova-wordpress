@@ -15,10 +15,14 @@ $fraudnova_from_constant = $plugin_settings->api_key_from_constant();
 	<tr>
 		<th scope="row"><label for="fraudnova-api-key"><?php esc_html_e( 'API key', 'fraudnova' ); ?></label></th>
 		<td>
-			<input type="password" id="fraudnova-api-key" class="regular-text" autocomplete="off" spellcheck="false"
-				name="<?php echo esc_attr( $name . '[api_key]' ); ?>"
-				value="<?php echo esc_attr( $fraudnova_from_constant ? '' : (string) $settings['api_key'] ); ?>"
-				<?php echo $fraudnova_from_constant ? 'readonly' : ''; ?> />
+			<?php if ( $fraudnova_from_constant ) : ?>
+				<?php // No name attribute: nothing is posted, so the key saved in the option survives. ?>
+				<input type="password" id="fraudnova-api-key" class="regular-text" autocomplete="off" value="" readonly="readonly" />
+			<?php else : ?>
+				<input type="password" id="fraudnova-api-key" class="regular-text" autocomplete="off" spellcheck="false"
+					name="<?php echo esc_attr( $name . '[api_key]' ); ?>"
+					value="<?php echo esc_attr( (string) $settings['api_key'] ); ?>" />
+			<?php endif; ?>
 			<button type="button" class="button" id="fraudnova-test-connection"><?php esc_html_e( 'Test connection', 'fraudnova' ); ?></button>
 			<span id="fraudnova-test-result" class="fraudnova-test-result" role="status" aria-live="polite"></span>
 			<?php if ( $fraudnova_from_constant ) : ?>

@@ -74,14 +74,15 @@ class SettingsPageTest extends TestCase {
 
 		$this->assertArrayNotHasKey( 'fraudnova_settings[test_mode]', $inputs );
 		$this->assertArrayNotHasKey( 'fraudnova_settings[low_credit_email]', $inputs );
-		$this->assertSame( array( 'fn_&quot;secret&quot;' ), $inputs['fraudnova_settings[api_key]'] );
+		$this->assertArrayNotHasKey( 'fraudnova_settings[api_key]', $inputs );
+		$this->assertStringNotContainsString( 'secret', $html );
 		$this->assertSame( array( '1' ), $inputs['fraudnova_settings[orders_enabled]'] );
 		$this->assertSame( array( '0' ), $inputs['fraudnova_settings[delete_on_uninstall]'] );
 		$this->assertSame( array( '60' ), $inputs['fraudnova_settings[review_threshold]'] );
 		$this->assertSame( array( 'woocommerce' ), $inputs['fraudnova_settings[ip_source]'] );
 		$this->assertSame( array( 'cod', 'advanced_cod' ), $inputs['fraudnova_settings[order_payment_methods][]'] );
 
-		$expected = count( Settings::defaults() ) - 2 - 1 + 2; // minus excluded, the array key renders twice.
+		$expected = count( Settings::defaults() ) - 2 - 1 - 1 + 2; // minus excluded, minus api_key, the array key renders twice.
 		$this->assertSame( $expected, substr_count( $html, '<input ' ) );
 	}
 
@@ -112,6 +113,49 @@ class SettingsPageTest extends TestCase {
 		$saved = Plugin::instance()->settings()->sanitize( $post );
 
 		$this->assertSame( array_merge( Settings::defaults(), $this->stored ), $saved );
+	}
+
+	public function test_saving_general_under_the_constant_keeps_the_stored_key() {
+		$this->stored = array(
+			'api_key'   => 'fn_kept',
+			'test_mode' => true,
+		);
+		// The General form under the constant posts its visible fields without api_key, plus the other tabs' hidden fields.
+		$post = array( 'test_mode' => '1' );
+		foreach ( $this->inputs( $this->page->hidden_fields( $this->page->tab_keys( 'general' ) ) ) as $name => $values ) {
+			$key          = preg_replace( '/^fraudnova_settings\[([a-z0-9_]+)\](\[\])?$/', '$1', $name );
+			$post[ $key ] = '[]' === substr( $name, -2 ) ? $values : html_entity_decode( $values[0] );
+		}
+		Functions\when( 'wp_strip_all_tags' )->alias( 'strip_tags' );
+
+		$this->assertArrayNotHasKey( 'api_key', $post );
+		$this->assertSame( 'fn_kept', Plugin::instance()->settings()->sanitize( $post )['api_key'] );
+	}
+
+	public function test_saving_another_tab_keeps_the_stored_key() {
+		$this->stored = array( 'api_key' => 'fn_kept' );
+		$post         = array();
+		foreach ( $this->inputs( $this->page->hidden_fields( $this->page->tab_keys( 'forms' ) ) ) as $name => $values ) {
+			$key          = preg_replace( '/^fraudnova_settings\[([a-z0-9_]+)\](\[\])?$/', '$1', $name );
+			$post[ $key ] = '[]' === substr( $name, -2 ) ? $values : html_entity_decode( $values[0] );
+		}
+		Functions\when( 'wp_strip_all_tags' )->alias( 'strip_tags' );
+
+		$this->assertSame( 'fn_kept', Plugin::instance()->settings()->sanitize( $post )['api_key'] );
+	}
+
+	public function test_missing_gateway_ids_keeps_stored_ids_the_checklist_cannot_show() {
+		$choices = array(
+			'cod' => array(
+				'title'    => 'Cash on delivery',
+				'enabled'  => true,
+				'cod_like' => true,
+			),
+		);
+		$this->assertSame( array( 'advanced_cod', 'other' ), Settings_Page::missing_gateway_ids( array( 'cod', 'advanced_cod', 'other', 'other' ), $choices ) );
+		$this->assertSame( array( 'cod' ), Settings_Page::missing_gateway_ids( array( 'cod' ), array() ) );
+		$this->assertSame( array(), Settings_Page::missing_gateway_ids( 'all', $choices ) );
+		$this->assertSame( array(), Settings_Page::missing_gateway_ids( null, $choices ) );
 	}
 
 	public function test_tab_whitelist_falls_back_to_general() {

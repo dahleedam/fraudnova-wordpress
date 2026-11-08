@@ -7,6 +7,8 @@
  * @package FraudNova
  */
 
+use FraudNova\WordPress\Admin\Settings_Page;
+
 defined( 'ABSPATH' ) || exit;
 
 $fraudnova_labels   = $page->enum_labels();
@@ -71,6 +73,9 @@ $fraudnova_ip_help  = array(
 							<span class="description"><?php esc_html_e( '(disabled)', 'fraudnova' ); ?></span>
 						<?php endif; ?>
 					</label><br />
+				<?php endforeach; ?>
+				<?php foreach ( Settings_Page::missing_gateway_ids( $fraudnova_methods, $fraudnova_gateways ) as $fraudnova_missing ) : ?>
+					<input type="hidden" name="<?php echo esc_attr( $name . '[order_payment_methods][]' ); ?>" value="<?php echo esc_attr( $fraudnova_missing ); ?>" />
 				<?php endforeach; ?>
 				<p class="description"><?php esc_html_e( 'Leave everything unticked to detect cash-on-delivery gateways automatically.', 'fraudnova' ); ?></p>
 			</fieldset>

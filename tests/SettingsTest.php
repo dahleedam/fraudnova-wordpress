@@ -15,6 +15,12 @@ use FraudNova\WordPress\Settings;
  */
 class SettingsTest extends TestCase {
 
+	protected function setUp(): void {
+		parent::setUp();
+		// sanitize() reads the stored option when api_key is not posted; default to nothing saved.
+		$this->stub_option( false );
+	}
+
 	/**
 	 * Stub the option store.
 	 *
@@ -152,6 +158,24 @@ class SettingsTest extends TestCase {
 		$this->assertNull( $s->sanitize( array() )['order_payment_methods'] );
 		$this->assertNull( $s->sanitize( array( 'order_payment_methods' => array() ) )['order_payment_methods'] );
 		$this->assertSame( 'all', $s->sanitize( array( 'order_payment_methods' => array( 'cod', 'all' ) ) )['order_payment_methods'] );
+	}
+
+	public function test_sanitize_keeps_the_stored_api_key_when_the_key_is_not_posted() {
+		$this->stub_option( array( 'api_key' => 'fn_stored' ) );
+		$out = ( new Settings() )->sanitize( array( 'test_mode' => '1' ) );
+		$this->assertSame( 'fn_stored', $out['api_key'] );
+	}
+
+	public function test_sanitize_sets_the_api_key_when_posted_even_empty() {
+		$this->stub_option( array( 'api_key' => 'fn_stored' ) );
+		$s = new Settings();
+		$this->assertSame( 'fn_new', $s->sanitize( array( 'api_key' => ' fn_new ' ) )['api_key'] );
+		$this->assertSame( '', $s->sanitize( array( 'api_key' => '' ) )['api_key'] );
+	}
+
+	public function test_sanitize_without_stored_option_and_no_posted_key_is_empty() {
+		$this->stub_option( false );
+		$this->assertSame( '', ( new Settings() )->sanitize( array() )['api_key'] );
 	}
 
 	public function test_api_key_constant_overrides_option() {

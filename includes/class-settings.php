@@ -200,7 +200,10 @@ class Settings {
 				$msg         = $present && is_scalar( $value ) ? trim( wp_strip_all_tags( (string) $value ) ) : '';
 				$out[ $key ] = '' === $msg ? $default : $msg;
 			} elseif ( 'api_key' === $key ) {
-				$out[ $key ] = $present && is_scalar( $value ) ? trim( sanitize_text_field( (string) $value ) ) : '';
+				// A form that does not post the key (other tabs, or the key comes from wp-config.php) keeps the stored one.
+				$out[ $key ] = $present
+					? ( is_scalar( $value ) ? trim( sanitize_text_field( (string) $value ) ) : '' )
+					: $this->stored_api_key();
 			} elseif ( is_bool( $default ) ) {
 				$out[ $key ] = ! empty( $value );
 			} elseif ( is_int( $default ) ) {
@@ -218,6 +221,16 @@ class Settings {
 		}
 
 		return $out;
+	}
+
+	/**
+	 * The API key currently saved in the option (never the constant).
+	 *
+	 * @return string
+	 */
+	private function stored_api_key(): string {
+		$stored = get_option( self::OPTION, array() );
+		return ( is_array( $stored ) && isset( $stored['api_key'] ) && is_scalar( $stored['api_key'] ) ) ? (string) $stored['api_key'] : '';
 	}
 
 	/**

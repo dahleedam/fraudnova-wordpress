@@ -128,7 +128,8 @@ class Settings_Page {
 	public function hidden_fields( array $except_keys ): string {
 		$html = '';
 		foreach ( $this->plugin->settings()->all() as $key => $value ) {
-			if ( in_array( $key, $except_keys, true ) || null === $value ) {
+			// The API key is never echoed into other tabs; sanitize() keeps the stored key when it is not posted.
+			if ( 'api_key' === $key || in_array( $key, $except_keys, true ) || null === $value ) {
 				continue;
 			}
 			$name = Settings::OPTION . '[' . $key . ']';
@@ -211,6 +212,26 @@ class Settings_Page {
 			);
 		}
 		return $out;
+	}
+
+	/**
+	 * Stored gateway ids that the checklist cannot show (gateway or WooCommerce inactive).
+	 *
+	 * @param mixed $stored  Stored order_payment_methods value.
+	 * @param array $choices Result of gateway_choices().
+	 * @return string[]
+	 */
+	public static function missing_gateway_ids( $stored, array $choices ): array {
+		if ( ! is_array( $stored ) ) {
+			return array();
+		}
+		$missing = array();
+		foreach ( $stored as $id ) {
+			if ( is_scalar( $id ) && ! array_key_exists( (string) $id, $choices ) ) {
+				$missing[] = (string) $id;
+			}
+		}
+		return array_values( array_unique( $missing ) );
 	}
 
 	/**
