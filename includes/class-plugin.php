@@ -64,6 +64,13 @@ class Plugin {
 	private $scorer = null;
 
 	/**
+	 * Out-of-credits email.
+	 *
+	 * @var Low_Credit_Alert|null
+	 */
+	private $low_credit_alert = null;
+
+	/**
 	 * WooCommerce order integration.
 	 *
 	 * @var Integrations\Woocommerce_Orders|null
@@ -148,13 +155,25 @@ class Plugin {
 	}
 
 	/**
+	 * Get the out-of-credits email.
+	 *
+	 * @return Low_Credit_Alert
+	 */
+	public function low_credit_alert(): Low_Credit_Alert {
+		if ( null === $this->low_credit_alert ) {
+			$this->low_credit_alert = new Low_Credit_Alert( $this->settings() );
+		}
+		return $this->low_credit_alert;
+	}
+
+	/**
 	 * Get the scorer.
 	 *
 	 * @return Scorer
 	 */
 	public function scorer(): Scorer {
 		if ( null === $this->scorer ) {
-			$this->scorer = new Scorer( $this->api_client(), $this->cache(), $this->settings(), $this->log(), $this->error_state() );
+			$this->scorer = new Scorer( $this->api_client(), $this->cache(), $this->settings(), $this->log(), $this->error_state(), $this->low_credit_alert() );
 		}
 		return $this->scorer;
 	}
@@ -211,13 +230,14 @@ class Plugin {
 	}
 
 	/**
-	 * Declare compatibility with WooCommerce High-Performance Order Storage.
+	 * Declare compatibility with WooCommerce High-Performance Order Storage and the block checkout.
 	 *
 	 * @return void
 	 */
 	public function declare_hpos_compatibility(): void {
 		if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
 			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', FRAUDNOVA_FILE, true );
+			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'cart_checkout_blocks', FRAUDNOVA_FILE, true );
 		}
 	}
 }

@@ -27,7 +27,7 @@ class RecheckTest extends TestCase {
 		parent::setUp();
 		$this->log = array();
 		$log       = &$this->log;
-		$_POST     = array( 'order_id' => '12' );
+		$_GET      = array( 'order_id' => '12' );
 		Functions\when( 'wp_unslash' )->returnArg( 1 );
 		Functions\when( 'check_admin_referer' )->alias(
 			function ( $a ) use ( &$log ) {
@@ -59,8 +59,7 @@ class RecheckTest extends TestCase {
 	}
 
 	protected function tearDown(): void {
-		$_POST = array();
-		unset( $_GET['fraudnova'] );
+		$_GET = array();
 		parent::tearDown();
 	}
 
@@ -98,6 +97,20 @@ class RecheckTest extends TestCase {
 		);
 	}
 
+	public function test_post_body_is_ignored() {
+		$_GET  = array();
+		$_POST = array( 'order_id' => '12' );
+		try {
+			$this->recheck()->handle();
+			$this->fail( 'expected wp_die' );
+		} catch ( \RuntimeException $e ) {
+			$this->assertSame( 'die:404', $e->getMessage() );
+		} finally {
+			$_POST = array();
+		}
+		$this->assertSame( 'nonce:fraudnova_recheck_0', $this->log[0] );
+	}
+
 	public function test_denied_without_capability() {
 		Functions\when( 'current_user_can' )->justReturn( false );
 		try {
@@ -110,7 +123,7 @@ class RecheckTest extends TestCase {
 	}
 
 	public function test_missing_order_is_404() {
-		$_POST['order_id'] = '99';
+		$_GET['order_id'] = '99';
 		try {
 			$this->recheck()->handle();
 			$this->fail( 'expected wp_die' );

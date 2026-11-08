@@ -14,6 +14,7 @@ use FraudNova\WordPress\Api_Response;
 use FraudNova\WordPress\Cache;
 use FraudNova\WordPress\Check_Result;
 use FraudNova\WordPress\Error_State;
+use FraudNova\WordPress\Low_Credit_Alert;
 use FraudNova\WordPress\Scorer;
 use FraudNova\WordPress\Settings;
 use FraudNova\WordPress\Time_Budget;
@@ -224,6 +225,52 @@ final class ScorerTest extends TestCase {
 		$this->assertTrue( ( new Error_State() )->is( 'insufficient_credits' ) );
 	}
 
+	/**
+	 * A scorer that emails on an empty balance.
+	 *
+	 * @return Scorer
+	 */
+	private function alerting_scorer(): Scorer {
+		$this->options['admin_email'] = 'owner@shop.test';
+		return new Scorer( $this->client, new Cache(), $this->settings, new Activity_Log(), new Error_State(), new Low_Credit_Alert( $this->settings ) );
+	}
+
+	public function test_402_emails_the_admin_once_a_day(): void {
+		$this->settings->shouldReceive( 'get' )->with( 'low_credit_email' )->andReturn( true );
+		$this->client->shouldReceive( 'check_ip' )->twice()->andReturn( $this->failing( 402 ) );
+		Functions\expect( 'wp_mail' )->once()->with(
+			'owner@shop.test',
+			'FraudNova: your account is out of credits',
+			Mockery::on(
+				function ( $body ) {
+					return false !== strpos( $body, 'https://fraudnova.com/dashboard/billing' );
+				}
+			)
+		)->andReturn( true );
+
+		$scorer = $this->alerting_scorer();
+		$scorer->score( 'ip', '8.8.8.8' );
+		$scorer->score( 'ip', '8.8.4.4' );
+
+		$this->assertArrayHasKey( 'fraudnova_low_credit_mailed', $this->store );
+	}
+
+	public function test_402_sends_no_email_when_the_setting_is_off(): void {
+		$this->settings->shouldReceive( 'get' )->with( 'low_credit_email' )->andReturn( false );
+		$this->client->shouldReceive( 'check_ip' )->once()->andReturn( $this->failing( 402 ) );
+		Functions\expect( 'wp_mail' )->never();
+		$this->alerting_scorer()->score( 'ip', '8.8.8.8' );
+		$this->assertArrayNotHasKey( 'fraudnova_low_credit_mailed', $this->store );
+	}
+
+	public function test_other_errors_send_no_email(): void {
+		$this->settings->shouldReceive( 'get' )->with( 'low_credit_email' )->andReturn( true );
+		$this->client->shouldReceive( 'check_ip' )->once()->andReturn( $this->failing( 401 ) );
+		Functions\expect( 'wp_mail' )->never();
+		$this->assertSame( 'unauthorized', $this->alerting_scorer()->score( 'ip', '8.8.8.8' )->error_code );
+		$this->assertArrayNotHasKey( 'fraudnova_low_credit_mailed', $this->store );
+	}
+
 	public function test_success_clears_credential_error_state(): void {
 		( new Error_State() )->set( 'unauthorized', 'x' );
 		$this->client->shouldReceive( 'check_ip' )->once()->andReturn( $this->ok() );
@@ -239,9 +286,22 @@ final class ScorerTest extends TestCase {
 	}
 
 	public function test_phone_country_is_uppercased(): void {
-		$this->client->shouldReceive( 'check_phone' )->once()->with( '0300 1234567', 'PK' )->andReturn( $this->ok() );
+		$this->client->shouldReceive( 'check_phone' )->once()->with( '03001234567', 'PK' )->andReturn( $this->ok() );
 		$r = $this->scorer->score( 'phone', '0300 1234567', array( 'country' => 'pk' ) );
 		$this->assertSame( Check_Result::STATUS_OK, $r->status );
+	}
+
+	public function test_phone_is_sent_as_digits_with_one_leading_plus(): void {
+		$this->client->shouldReceive( 'check_phone' )->once()->with( '+923001234567', '' )->andReturn( $this->ok() );
+		$this->client->shouldReceive( 'check_phone' )->once()->with( '18176791808', '' )->andReturn( $this->ok() );
+		$this->assertSame( Check_Result::STATUS_OK, $this->scorer->score( 'phone', ' +92 (300) 123.45-67 ' )->status );
+		$this->assertSame( Check_Result::STATUS_OK, $this->scorer->score( 'phone', '1 (817) +679.1808' )->status );
+	}
+
+	public function test_phone_without_digits_is_skipped_without_http(): void {
+		$this->client->shouldNotReceive( 'check_phone' );
+		$r = $this->scorer->score( 'phone', '(...)' );
+		$this->assertSame( Check_Result::STATUS_SKIPPED, $r->status );
 	}
 
 	public function test_other_errors_carry_response_code(): void {

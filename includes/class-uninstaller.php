@@ -7,6 +7,8 @@
 
 namespace FraudNova\WordPress;
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Removes plugin data on uninstall.
  */

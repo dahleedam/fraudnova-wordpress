@@ -10,8 +10,9 @@ namespace FraudNova\WordPress;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Resolves the visitor IP according to the configured source. Forwarded-for
- * headers are never trusted; only the chosen source is read.
+ * Resolves the visitor IP according to the configured source. Only the
+ * woocommerce source trusts forwarded-for headers, the same way WooCommerce
+ * itself does; remote_addr and cloudflare read only their own value.
  */
 final class Client_Ip {
 

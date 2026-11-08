@@ -212,9 +212,6 @@ final class Order_Assessment {
 	public function note(): string {
 		if ( null === $this->score ) {
 			$head = __( 'FraudNova: no check could be completed', 'fraudnova' );
-			if ( self::LEVEL_UNKNOWN !== $this->level ) {
-				$head .= ' (' . $this->level . ')';
-			}
 		} else {
 			$head = sprintf(
 				/* translators: 1: fraud score, 2: level. */
@@ -223,12 +220,7 @@ final class Order_Assessment {
 				$this->level
 			);
 		}
-
-		if ( array() !== $this->reasons ) {
-			$labels = array_map( array( Reasons::class, 'label' ), $this->reasons );
-			$head  .= ' — ' . implode( ', ', $labels );
-		}
-		$note = $head . '.';
+		$note = $this->summary( $head ) . '.';
 
 		$phrases = array(
 			self::ACTION_FLAG   => __( 'Flagged for review.', 'fraudnova' ),
@@ -249,6 +241,42 @@ final class Order_Assessment {
 		}
 
 		return $note;
+	}
+
+	/**
+	 * Order note for a manual re-check, which never changes the order status.
+	 *
+	 * @return string
+	 */
+	public function recheck_note(): string {
+		if ( null === $this->score ) {
+			$head = __( 'FraudNova re-check: no check could be completed', 'fraudnova' );
+		} else {
+			$head = sprintf(
+				/* translators: 1: fraud score, 2: level. */
+				__( 'FraudNova re-check: score %1$d (%2$s)', 'fraudnova' ),
+				$this->score,
+				$this->level
+			);
+		}
+		return $this->summary( $head ) . '. ' . __( 'Status not changed.', 'fraudnova' );
+	}
+
+	/**
+	 * A note head followed by the level (when unscored) and the reasons.
+	 *
+	 * @param string $head Note head.
+	 * @return string
+	 */
+	private function summary( string $head ): string {
+		if ( null === $this->score && self::LEVEL_UNKNOWN !== $this->level ) {
+			$head .= ' (' . $this->level . ')';
+		}
+		if ( array() !== $this->reasons ) {
+			$labels = array_map( array( Reasons::class, 'label' ), $this->reasons );
+			$head  .= ' — ' . implode( ', ', $labels );
+		}
+		return $head;
 	}
 
 	/**

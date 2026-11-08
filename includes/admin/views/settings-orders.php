@@ -14,6 +14,7 @@ defined( 'ABSPATH' ) || exit;
 $fraudnova_labels   = $page->enum_labels();
 $fraudnova_methods  = $settings['order_payment_methods'];
 $fraudnova_gateways = $page->gateway_choices();
+$fraudnova_ticked   = Settings_Page::checked_methods( $fraudnova_methods, $fraudnova_gateways );
 $fraudnova_rules    = array(
 	'rule_phone_invalid'    => __( 'Phone number is invalid', 'fraudnova' ),
 	'rule_phone_voip'       => __( 'Phone number is VOIP', 'fraudnova' ),
@@ -56,15 +57,11 @@ $fraudnova_ip_help  = array(
 			<fieldset>
 				<legend class="screen-reader-text"><?php esc_html_e( 'Payment methods', 'fraudnova' ); ?></legend>
 				<label>
-					<input type="checkbox" name="<?php echo esc_attr( $name . '[order_payment_methods][]' ); ?>" value="all" <?php checked( 'all' === $fraudnova_methods ); ?> />
+					<input type="checkbox" name="<?php echo esc_attr( $name . '[order_payment_methods][]' ); ?>" value="all" <?php checked( in_array( 'all', $fraudnova_ticked, true ) ); ?> />
 					<?php esc_html_e( 'Every payment method', 'fraudnova' ); ?>
 				</label><br />
 				<?php foreach ( $fraudnova_gateways as $fraudnova_id => $fraudnova_gateway ) : ?>
-					<?php
-					$fraudnova_checked = is_array( $fraudnova_methods )
-						? in_array( (string) $fraudnova_id, $fraudnova_methods, true )
-						: ( null === $fraudnova_methods && $fraudnova_gateway['cod_like'] );
-					?>
+					<?php $fraudnova_checked = in_array( strtolower( (string) $fraudnova_id ), $fraudnova_ticked, true ); ?>
 					<label>
 						<input type="checkbox" name="<?php echo esc_attr( $name . '[order_payment_methods][]' ); ?>" value="<?php echo esc_attr( (string) $fraudnova_id ); ?>" <?php checked( $fraudnova_checked ); ?> />
 						<?php echo esc_html( $fraudnova_gateway['title'] ); ?>
@@ -77,7 +74,7 @@ $fraudnova_ip_help  = array(
 				<?php foreach ( Settings_Page::missing_gateway_ids( $fraudnova_methods, $fraudnova_gateways ) as $fraudnova_missing ) : ?>
 					<input type="hidden" name="<?php echo esc_attr( $name . '[order_payment_methods][]' ); ?>" value="<?php echo esc_attr( $fraudnova_missing ); ?>" />
 				<?php endforeach; ?>
-				<p class="description"><?php esc_html_e( 'Leave everything unticked to detect cash-on-delivery gateways automatically.', 'fraudnova' ); ?></p>
+				<p class="description"><?php esc_html_e( 'Leave everything unticked to check cash-on-delivery gateways automatically, or every payment method when none is found.', 'fraudnova' ); ?></p>
 			</fieldset>
 		</td>
 	</tr>

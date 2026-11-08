@@ -131,9 +131,10 @@ final class Order_Meta {
 		}
 
 		return array(
-			'assessment' => $assessment,
-			'results'    => $results,
-			'checked_at' => $checked_at,
+			'assessment'        => $assessment,
+			'results'           => $results,
+			'checked_at'        => $checked_at,
+			'action_applied_at' => (string) $order->get_meta( self::ACTION_APPLIED ),
 		);
 	}
 

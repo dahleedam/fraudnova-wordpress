@@ -20,16 +20,26 @@ $fraudnova_checked = is_array( $data );
 <?php if ( $fraudnova_checked ) : ?>
 	<?php
 	$fraudnova_assessment = $data['assessment'];
-	$fraudnova_time       = strtotime( (string) $data['checked_at'] );
+	$fraudnova_applied    = isset( $data['action_applied_at'] ) ? (string) $data['action_applied_at'] : '';
+	$fraudnova_time       = strtotime( '' !== $fraudnova_applied ? $fraudnova_applied : (string) $data['checked_at'] );
+	$fraudnova_action     = $box->action_label( $fraudnova_assessment->action );
+	if ( $fraudnova_assessment->test_mode ) {
+		$fraudnova_action .= ' · ' . __( 'test mode', 'fraudnova' );
+	}
 	?>
 	<p>
 		<?php echo Order_Meta_Box::pill( $fraudnova_assessment->level, $fraudnova_assessment->score ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pill() escapes. ?>
 	</p>
+	<p class="fraudnova-order-action"><?php echo esc_html( $fraudnova_action ); ?></p>
 	<?php if ( false !== $fraudnova_time ) : ?>
 		<p class="description">
 			<?php
-			/* translators: %s: date and time. */
-			echo esc_html( sprintf( __( 'Checked %s', 'fraudnova' ), wp_date( 'Y-m-d H:i', $fraudnova_time ) ) );
+			$fraudnova_when = wp_date( 'Y-m-d H:i', $fraudnova_time );
+			echo '' !== $fraudnova_applied
+				/* translators: %s: date and time. */
+				? esc_html( sprintf( __( 'Applied %s', 'fraudnova' ), $fraudnova_when ) )
+				/* translators: %s: date and time. */
+				: esc_html( sprintf( __( 'Checked %s', 'fraudnova' ), $fraudnova_when ) );
 			?>
 		</p>
 	<?php endif; ?>
@@ -87,18 +97,19 @@ $fraudnova_checked = is_array( $data );
 <?php else : ?>
 	<p><?php echo Order_Meta_Box::pill( 'none', null ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pill() escapes. ?></p>
 <?php endif; ?>
-	<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-		<input type="hidden" name="action" value="fraudnova_recheck" />
-		<input type="hidden" name="order_id" value="<?php echo esc_attr( (string) $order_id ); ?>" />
-		<?php wp_nonce_field( 'fraudnova_recheck_' . $order_id ); ?>
-		<p>
-			<button type="submit" class="button">
-				<?php
-				echo $fraudnova_checked
-					? esc_html__( 'Check again (uses up to 3 credits)', 'fraudnova' )
-					: esc_html__( 'Check now (uses up to 3 credits)', 'fraudnova' );
-				?>
-			</button>
-		</p>
-	</form>
+	<?php
+	$fraudnova_recheck_url = wp_nonce_url(
+		admin_url( 'admin-post.php?action=fraudnova_recheck&order_id=' . $order_id ),
+		'fraudnova_recheck_' . $order_id
+	);
+	?>
+	<p>
+		<a href="<?php echo esc_url( $fraudnova_recheck_url ); ?>" class="button">
+			<?php
+			echo $fraudnova_checked
+				? esc_html__( 'Check again (uses up to 3 credits)', 'fraudnova' )
+				: esc_html__( 'Check now (uses up to 3 credits)', 'fraudnova' );
+			?>
+		</a>
+	</p>
 </div>

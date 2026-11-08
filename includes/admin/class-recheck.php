@@ -43,12 +43,12 @@ class Recheck {
 	}
 
 	/**
-	 * Handle the form post.
+	 * Handle the Check again link (a nonce-protected GET to admin-post.php).
 	 *
 	 * @return void
 	 */
 	public function handle(): void {
-		$order_id = isset( $_POST['order_id'] ) ? absint( wp_unslash( $_POST['order_id'] ) ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified on the next line, the nonce action needs the id.
+		$order_id = isset( $_GET['order_id'] ) ? absint( wp_unslash( $_GET['order_id'] ) ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- verified on the next line, the nonce action needs the id.
 		check_admin_referer( 'fraudnova_recheck_' . $order_id );
 
 		if ( ! current_user_can( 'manage_woocommerce' ) ) {

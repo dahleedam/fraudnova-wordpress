@@ -51,7 +51,7 @@ FraudNova uses prepaid credits: one credit per check, so the automatic check of 
 
 = Does this slow down checkout? =
 
-Typically by a second or two. A hard limit of eight seconds applies and the order still goes through if the limit is hit. By default, if the API is unavailable the order goes through normally.
+Typically by a second or two. A limit of about eight seconds applies and the order still goes through if the limit is hit. By default, if the API is unavailable the order goes through normally.
 
 = What happens when I run out of credits? =
 
@@ -71,7 +71,7 @@ Yes. Both the classic and the block checkout are supported, and the plugin is co
 
 = Which payment methods are checked? =
 
-Cash-on-delivery-like payment methods are detected automatically. You can pick the exact payment methods to check, or check all orders, on the Orders tab of the settings.
+Cash-on-delivery-like payment methods are detected automatically; if the store has none enabled, every order is checked. You can pick the exact payment methods to check, or check all orders, on the Orders tab of the settings.
 
 = Which forms are protected? =
 

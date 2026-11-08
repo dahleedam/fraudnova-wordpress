@@ -274,7 +274,7 @@ class SettingsPageTest extends TestCase {
 				'custom_pod'   => array(
 					'title'    => 'Cash on Delivery',
 					'enabled'  => false,
-					'cod_like' => true,
+					'cod_like' => false,
 				),
 				'stripe'       => array(
 					'title'    => 'Stripe card',
@@ -284,6 +284,28 @@ class SettingsPageTest extends TestCase {
 			),
 			$choices
 		);
+	}
+
+	public function test_checked_methods_match_the_checkout_default() {
+		$cod     = array(
+			'title'    => 'Cash on delivery',
+			'enabled'  => true,
+			'cod_like' => true,
+		);
+		$card    = array(
+			'title'    => 'Card',
+			'enabled'  => true,
+			'cod_like' => false,
+		);
+		$choices = array(
+			'COD'    => $cod,
+			'stripe' => $card,
+		);
+		$this->assertSame( array( 'cod' ), Settings_Page::checked_methods( null, $choices ) );
+		$this->assertSame( array( 'all' ), Settings_Page::checked_methods( null, array( 'stripe' => $card ) ) );
+		$this->assertSame( array( 'all' ), Settings_Page::checked_methods( null, array() ) );
+		$this->assertSame( array( 'all' ), Settings_Page::checked_methods( 'all', $choices ) );
+		$this->assertSame( array( 'bacs', 'stripe' ), Settings_Page::checked_methods( array( 'BACS', 'stripe' ), $choices ) );
 	}
 
 	public function test_gateway_choices_empty_without_woocommerce() {

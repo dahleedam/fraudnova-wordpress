@@ -146,7 +146,6 @@ class NoticesTest extends TestCase {
 	}
 
 	public function test_insufficient_credits_renders_a_warning_with_billing_link() {
-		Functions\when( 'wp_mail' )->justReturn( true );
 		$this->error( 'insufficient_credits' );
 		$html = $this->render();
 
@@ -156,30 +155,12 @@ class NoticesTest extends TestCase {
 		$this->assertStringContainsString( 'Buy credits', $html );
 	}
 
-	public function test_low_credit_mail_is_sent_once_per_day() {
-		$this->error( 'insufficient_credits' );
-		Functions\expect( 'wp_mail' )->once()->with(
-			'owner@shop.test',
-			'FraudNova: your account is out of credits',
-			\Mockery::on(
-				function ( $body ) {
-					return false !== strpos( $body, 'https://fraudnova.com/dashboard/billing' );
-				}
-			)
-		)->andReturn( true );
-
-		$this->render();
-		$this->render();
-
-		$this->assertArrayHasKey( 'fraudnova_low_credit_mailed', $this->transients );
-	}
-
-	public function test_low_credit_mail_respects_the_setting() {
-		$this->options[ Settings::OPTION ]['low_credit_email'] = false;
+	public function test_notice_never_sends_mail() {
 		$this->error( 'insufficient_credits' );
 		Functions\expect( 'wp_mail' )->never();
 
 		$this->assertStringContainsString( 'Buy credits', $this->render() );
+		$this->assertArrayNotHasKey( 'fraudnova_low_credit_mailed', $this->transients );
 	}
 
 	public function test_no_api_key_notice_on_plugins_screen() {

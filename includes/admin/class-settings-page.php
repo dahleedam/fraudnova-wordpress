@@ -192,26 +192,48 @@ class Settings_Page {
 			$gateways = (array) $wc->payment_gateways()->payment_gateways();
 		}
 
-		$out = array();
+		$cod_ids = Woocommerce_Orders::cod_like_gateway_ids( $gateways );
+		$out     = array();
 		foreach ( $gateways as $gateway ) {
 			if ( ! is_object( $gateway ) || ! isset( $gateway->id ) ) {
 				continue;
 			}
 			$id    = (string) $gateway->id;
-			$title = method_exists( $gateway, 'get_title' ) ? (string) $gateway->get_title() : '';
-			if ( '' === $title && method_exists( $gateway, 'get_method_title' ) ) {
-				$title = (string) $gateway->get_method_title();
-			}
+			$title = Woocommerce_Orders::gateway_title( $gateway );
 			if ( '' === $title ) {
 				$title = $id;
 			}
 			$out[ $id ] = array(
 				'title'    => $title,
 				'enabled'  => isset( $gateway->enabled ) && 'yes' === $gateway->enabled,
-				'cod_like' => Woocommerce_Orders::looks_like_cod( $id, $title ),
+				'cod_like' => in_array( strtolower( $id ), $cod_ids, true ),
 			);
 		}
 		return $out;
+	}
+
+	/**
+	 * Checklist values that render ticked: the stored choice, or the same
+	 * default checkout applies (cash-on-delivery gateways, else every method).
+	 *
+	 * @param mixed $stored  Stored order_payment_methods value.
+	 * @param array $choices Result of gateway_choices().
+	 * @return string[] Lowercase gateway ids and/or 'all'.
+	 */
+	public static function checked_methods( $stored, array $choices ): array {
+		if ( 'all' === $stored ) {
+			return array( 'all' );
+		}
+		if ( is_array( $stored ) ) {
+			return array_values( array_map( 'strtolower', array_map( 'strval', $stored ) ) );
+		}
+		$cod = array();
+		foreach ( $choices as $id => $choice ) {
+			if ( ! empty( $choice['cod_like'] ) ) {
+				$cod[] = strtolower( (string) $id );
+			}
+		}
+		return array() === $cod ? array( 'all' ) : $cod;
 	}
 
 	/**

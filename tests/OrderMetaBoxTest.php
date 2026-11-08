@@ -30,9 +30,9 @@ class OrderMetaBoxTest extends TestCase {
 				return 'DATE ' . gmdate( 'Y-m-d H:i', (int) $ts );
 			}
 		);
-		Functions\when( 'wp_nonce_field' )->alias(
-			function ( $action ) {
-				echo '<input type="hidden" name="_wpnonce" value="NONCE:' . $action . '" />';
+		Functions\when( 'wp_nonce_url' )->alias(
+			function ( $url, $action ) {
+				return $url . '&_wpnonce=abc&nonce_action=NONCE:' . $action;
 			}
 		);
 	}
@@ -61,9 +61,15 @@ class OrderMetaBoxTest extends TestCase {
 		$this->assertStringContainsString( 'Not checked', $html );
 		$this->assertStringContainsString( 'NONCE:fraudnova_recheck_7', $html );
 		$this->assertStringContainsString( 'Check now (uses up to 3 credits)', $html );
-		$this->assertStringContainsString( 'value="fraudnova_recheck"', $html );
-		$this->assertStringContainsString( 'name="order_id" value="7"', $html );
-		$this->assertStringContainsString( 'admin-post.php', $html );
+		$this->assertStringContainsString( 'admin-post.php?action=fraudnova_recheck&order_id=7&_wpnonce=abc', $html );
+	}
+
+	public function test_recheck_is_a_link_not_a_nested_form() {
+		$html = $this->html( new \WC_Order( 7 ) );
+		$this->assertStringNotContainsString( '<form', $html );
+		$this->assertStringNotContainsString( 'name="action"', $html );
+		$this->assertStringNotContainsString( 'name="_wpnonce"', $html );
+		$this->assertMatchesRegularExpression( '#<a href="[^"]*admin-post\.php\?action=fraudnova_recheck[^"]*_wpnonce=abc[^"]*" class="button">#', $html );
 	}
 
 	public function test_checked_order_shows_score_reasons_flags_and_no_subject() {
@@ -95,6 +101,40 @@ class OrderMetaBoxTest extends TestCase {
 		$order->update_meta_data( Order_Meta::RESULT_PHONE, $bad->to_array() );
 		$html = $this->html( $order );
 		$this->assertStringContainsString( 'Error: Upstream &lt;b&gt;down&lt;/b&gt;', $html );
+	}
+
+	public function test_held_order_shows_the_action_and_when_it_was_applied() {
+		$order = new \WC_Order( 11 );
+		$a     = Order_Assessment::from_meta( array( 'level' => 'high', 'score' => 91, 'reasons' => array( 'score_91' ), 'action' => 'hold' ) );
+		Order_Meta::write( $order, $a, array() );
+		$order->update_meta_data( Order_Meta::ACTION_APPLIED, '2026-11-02T10:15:00+00:00' );
+
+		$html = $this->html( $order );
+		$this->assertStringContainsString( 'Held for review', $html );
+		$this->assertStringContainsString( 'Applied DATE 2026-11-02 10:15', $html );
+		$this->assertStringNotContainsString( 'Checked DATE', $html );
+		$this->assertStringNotContainsString( 'test mode', $html );
+		$this->assertSame( '2026-11-02T10:15:00+00:00', Order_Meta::read( $order )['action_applied_at'] );
+	}
+
+	public function test_action_line_variants_and_test_mode() {
+		$cases = array(
+			'flag'   => 'Flagged for review',
+			'cancel' => 'Cancelled',
+			'none'   => 'No action',
+		);
+		foreach ( $cases as $action => $label ) {
+			$order = new \WC_Order( 12 );
+			Order_Meta::write( $order, Order_Assessment::from_meta( array( 'level' => 'review', 'score' => 60, 'action' => $action ) ), array() );
+			$html = $this->html( $order );
+			$this->assertStringContainsString( $label, $html );
+			$this->assertStringContainsString( 'Checked DATE', $html );
+			$this->assertSame( '', Order_Meta::read( $order )['action_applied_at'] );
+		}
+
+		$order = new \WC_Order( 13 );
+		Order_Meta::write( $order, Order_Assessment::from_meta( array( 'level' => 'high', 'score' => 90, 'action' => 'flag', 'test_mode' => true ) ), array() );
+		$this->assertStringContainsString( 'Flagged for review · test mode', $this->html( $order ) );
 	}
 
 	public function test_render_ignores_objects_without_order() {

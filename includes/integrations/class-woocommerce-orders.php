@@ -37,6 +37,13 @@ final class Woocommerce_Orders {
 	private $scorer = null;
 
 	/**
+	 * Payment gateway override (tests).
+	 *
+	 * @var array|null
+	 */
+	private $gateways = null;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param Plugin $plugin Plugin.
@@ -53,6 +60,16 @@ final class Woocommerce_Orders {
 	 */
 	public function set_scorer( Scorer $scorer ): void {
 		$this->scorer = $scorer;
+	}
+
+	/**
+	 * Replace the payment gateway list.
+	 *
+	 * @param array $gateways Gateway objects.
+	 * @return void
+	 */
+	public function set_gateways( array $gateways ): void {
+		$this->gateways = $gateways;
 	}
 
 	/**
@@ -158,11 +175,68 @@ final class Woocommerce_Orders {
 		if ( 'all' === $methods ) {
 			return true;
 		}
-		$id = (string) $order->get_payment_method();
+		$id = strtolower( (string) $order->get_payment_method() );
 		if ( is_array( $methods ) ) {
-			return in_array( $id, $methods, true );
+			return in_array( $id, array_map( 'strtolower', array_map( 'strval', $methods ) ), true );
 		}
-		return self::looks_like_cod( $id, (string) $order->get_payment_method_title() );
+		// Default: the store's cash-on-delivery gateways, or every method when it has none.
+		$cod_ids = self::cod_like_gateway_ids( $this->gateways );
+		if ( array() === $cod_ids ) {
+			return true;
+		}
+		return in_array( $id, $cod_ids, true );
+	}
+
+	/**
+	 * Lowercase ids of the enabled gateways that look like cash on delivery.
+	 * This is the default payment-method selection, used by checkout and the settings page.
+	 *
+	 * @param array|null $gateways Gateway objects (tests); defaults to WooCommerce's list.
+	 * @return string[]
+	 */
+	public static function cod_like_gateway_ids( ?array $gateways = null ): array {
+		if ( null === $gateways ) {
+			if ( ! function_exists( 'WC' ) ) {
+				return array();
+			}
+			$wc = WC();
+			if ( ! is_object( $wc ) || ! method_exists( $wc, 'payment_gateways' ) ) {
+				return array();
+			}
+			$gateways = (array) $wc->payment_gateways()->payment_gateways();
+		}
+
+		$ids = array();
+		foreach ( $gateways as $gateway ) {
+			if ( ! is_object( $gateway ) || ! isset( $gateway->id ) ) {
+				continue;
+			}
+			if ( isset( $gateway->enabled ) && 'yes' !== $gateway->enabled ) {
+				continue;
+			}
+			$id = (string) $gateway->id;
+			if ( self::looks_like_cod( $id, self::gateway_title( $gateway ) ) ) {
+				$ids[] = strtolower( $id );
+			}
+		}
+		return array_values( array_unique( $ids ) );
+	}
+
+	/**
+	 * A gateway's display title.
+	 *
+	 * @param object $gateway Gateway.
+	 * @return string
+	 */
+	public static function gateway_title( $gateway ): string {
+		$title = method_exists( $gateway, 'get_title' ) ? (string) $gateway->get_title() : '';
+		if ( '' === $title && method_exists( $gateway, 'get_method_title' ) ) {
+			$title = (string) $gateway->get_method_title();
+		}
+		if ( '' === $title && isset( $gateway->title ) && is_scalar( $gateway->title ) ) {
+			$title = (string) $gateway->title;
+		}
+		return $title;
 	}
 
 	/**
@@ -220,11 +294,22 @@ final class Woocommerce_Orders {
 		$paid_by_card = '' !== (string) $order->get_transaction_id();
 		$assessment   = Order_Assessment::evaluate( $results, $settings, $paid_by_card );
 
+		if ( $force ) {
+			// A re-check never changes the status, so the recorded action stays
+			// what was actually done; a first manual check can only flag.
+			$previous = (string) $order->get_meta( Order_Meta::ACTION );
+			if ( '' !== $previous ) {
+				$assessment->action = $previous;
+			} elseif ( Order_Assessment::ACTION_HOLD === $assessment->action || Order_Assessment::ACTION_CANCEL === $assessment->action ) {
+				$assessment->action = Order_Assessment::ACTION_FLAG;
+			}
+		}
+
 		Order_Meta::write( $order, $assessment, $results );
 		if ( $force ) {
 			$order->delete_meta_data( Order_Meta::ACTION_PENDING );
 		}
-		$note = $assessment->note();
+		$note = $force ? $assessment->recheck_note() : $assessment->note();
 		$order->add_order_note( $note );
 		$order->save();
 
@@ -308,14 +393,12 @@ final class Woocommerce_Orders {
 			return;
 		}
 
-		$this->downgrade(
-			$order,
-			sprintf(
-				/* translators: %s: order status. */
-				__( 'FraudNova: hold not applied — the payment method moved the order to %s.', 'fraudnova' ),
-				(string) $to
-			)
-		);
+		$message = 'on-hold' === $target
+			/* translators: %s: order status. */
+			? __( 'FraudNova: hold not applied — the payment method moved the order to %s.', 'fraudnova' )
+			/* translators: %s: order status. */
+			: __( 'FraudNova: cancellation not applied — the payment method moved the order to %s.', 'fraudnova' );
+		$this->downgrade( $order, sprintf( $message, (string) $to ) );
 	}
 
 	/**

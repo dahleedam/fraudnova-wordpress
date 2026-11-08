@@ -228,6 +228,24 @@ class OrderAssessmentTest extends TestCase {
 		$this->assertSame( $a->note(), $b->note() );
 	}
 
+	public function test_recheck_note_never_claims_an_action() {
+		$clean = Order_Assessment::evaluate( array( 'phone' => $this->phone( 12 ) ), $this->settings() );
+		$this->assertSame( 'FraudNova re-check: score 12 (clean). Status not changed.', $clean->recheck_note() );
+
+		$high = Order_Assessment::evaluate( array( 'ip' => $this->ip( 85 ) ), $this->settings() );
+		$this->assertSame( 'FraudNova re-check: score 85 (high) — Fraud score 85. Status not changed.', $high->recheck_note() );
+		$this->assertStringNotContainsString( 'Held', $high->recheck_note() );
+
+		$none = Order_Assessment::evaluate( array( 'phone' => Check_Result::skipped( 'phone', 'empty' ) ), $this->settings() );
+		$this->assertSame( 'FraudNova re-check: no check could be completed. Status not changed.', $none->recheck_note() );
+
+		$error = Order_Assessment::evaluate(
+			array( 'phone' => Check_Result::error( 'phone', 'http', 'boom' ) ),
+			$this->settings( array( 'on_error' => 'review' ) )
+		);
+		$this->assertSame( 'FraudNova re-check: no check could be completed (review) — A check could not be completed. Status not changed.', $error->recheck_note() );
+	}
+
 	public function test_from_meta_tolerates_missing_keys() {
 		$b = Order_Assessment::from_meta( array() );
 		$this->assertSame( 'unknown', $b->level );

@@ -16,8 +16,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class Notices {
 
-	const MAIL_TRANSIENT = 'fraudnova_low_credit_mailed';
-	const BILLING_URL    = 'https://fraudnova.com/dashboard/billing';
+	const BILLING_URL = 'https://fraudnova.com/dashboard/billing';
 
 	/**
 	 * Plugin.
@@ -92,29 +91,7 @@ class Notices {
 					esc_url( self::BILLING_URL )
 				)
 			);
-			$this->maybe_email_admin();
 		}
-	}
-
-	/**
-	 * Email the site admin about the empty balance, at most once a day.
-	 *
-	 * @return void
-	 */
-	public function maybe_email_admin(): void {
-		if ( ! $this->plugin->settings()->get( 'low_credit_email' ) ) {
-			return;
-		}
-		if ( false !== get_transient( self::MAIL_TRANSIENT ) ) {
-			return;
-		}
-		set_transient( self::MAIL_TRANSIENT, 1, DAY_IN_SECONDS );
-
-		$body = __( 'Your FraudNova account is out of credits, so new orders and forms are not being checked.', 'fraudnova' )
-			. ' ' . __( 'Buy credits to resume fraud checks:', 'fraudnova' )
-			. "\n\n" . self::BILLING_URL;
-
-		wp_mail( (string) get_option( 'admin_email' ), __( 'FraudNova: your account is out of credits', 'fraudnova' ), $body );
 	}
 
 	/**

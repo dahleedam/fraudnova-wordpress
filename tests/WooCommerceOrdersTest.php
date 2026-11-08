@@ -177,7 +177,74 @@ class WooCommerceOrdersTest extends TestCase {
 		$this->assertCount( 1, $order->notes );
 	}
 
+	/**
+	 * A fake payment gateway.
+	 *
+	 * @param string $id      ID.
+	 * @param string $title   Title.
+	 * @param string $enabled yes|no.
+	 * @return object
+	 */
+	private function gateway( string $id, string $title, string $enabled = 'yes' ) {
+		return (object) array(
+			'id'      => $id,
+			'title'   => $title,
+			'enabled' => $enabled,
+		);
+	}
+
+	public function test_without_a_cod_like_gateway_every_method_is_scored() {
+		$this->orders->set_gateways( array( $this->gateway( 'stripe', 'Credit card' ), $this->gateway( 'pod', 'Pay on delivery' ) ) );
+		$this->assertTrue( $this->orders->applies_to( $this->order( array( 'payment_method' => 'stripe', 'payment_method_title' => 'Credit card' ) ) ) );
+		$this->assertTrue( $this->orders->applies_to( $this->order( array( 'payment_method' => 'pod', 'payment_method_title' => 'Pay on delivery' ) ) ) );
+
+		$this->orders->set_gateways( array() );
+		$this->assertTrue( $this->orders->applies_to( $this->order( array( 'payment_method' => 'stripe' ) ) ) );
+	}
+
+	public function test_a_disabled_cod_gateway_does_not_count() {
+		$this->orders->set_gateways( array( $this->gateway( 'cod', 'Cash on delivery', 'no' ), $this->gateway( 'stripe', 'Credit card' ) ) );
+		$this->assertTrue( $this->orders->applies_to( $this->order( array( 'payment_method' => 'stripe' ) ) ) );
+	}
+
+	public function test_cod_like_gateway_ids_read_title_variants_and_lowercase() {
+		$ids = Woocommerce_Orders::cod_like_gateway_ids(
+			array(
+				$this->gateway( 'COD', '' ),
+				new class() {
+					/** @var string */
+					public $id = 'my_pod';
+					/** @var string */
+					public $enabled = 'yes';
+					/** @return string */
+					public function get_title() {
+						return '';
+					}
+					/** @return string */
+					public function get_method_title() {
+						return 'Cash on Delivery Plus';
+					}
+				},
+				$this->gateway( 'stripe', 'Card' ),
+				'not an object',
+			)
+		);
+		$this->assertSame( array( 'cod', 'my_pod' ), $ids );
+		$this->assertSame( array(), Woocommerce_Orders::cod_like_gateway_ids() );
+	}
+
+	public function test_mixed_case_gateway_id_matches() {
+		$this->orders->set_gateways( array( $this->gateway( 'COD', 'Cash on delivery' ) ) );
+		$this->assertTrue( $this->orders->applies_to( $this->order( array( 'payment_method' => 'cod' ) ) ) );
+		$this->assertFalse( $this->orders->applies_to( $this->order( array( 'payment_method' => 'stripe' ) ) ) );
+
+		$this->settings_option['order_payment_methods'] = array( 'Bacs' );
+		$this->assertTrue( $this->orders->applies_to( $this->order( array( 'payment_method' => 'BACS' ) ) ) );
+	}
+
 	public function test_non_cod_order_is_ignored_by_default() {
+		$this->orders->set_gateways( array( $this->gateway( 'cod', 'Cash on delivery' ), $this->gateway( 'stripe', 'Credit card' ) ) );
+		$this->assertTrue( $this->orders->applies_to( $this->order() ) );
 		$this->scorer->shouldNotReceive( 'score' );
 		$order = $this->order(
 			array(
@@ -293,11 +360,22 @@ class WooCommerceOrdersTest extends TestCase {
 		$this->orders->on_status_changed( 42, 'pending', 'on-hold', $order );
 		$this->assertArrayNotHasKey( Order_Meta::ACTION_PENDING, $order->meta );
 		$this->assertSame( 'flag', $order->get_meta( Order_Meta::ACTION ) );
-		$this->assertStringContainsString( 'hold not applied', $order->notes[0][0] );
+		$this->assertStringContainsString( 'cancellation not applied', $order->notes[0][0] );
 		$this->assertStringContainsString( 'on-hold', $order->notes[0][0] );
 
 		$this->orders->on_status_changed( 42, 'on-hold', 'processing', $order );
 		$this->assertSame( array(), $order->status_changes );
+	}
+
+	public function test_gateway_downgrade_note_names_the_pending_action() {
+		$hold = $this->order( array( 'meta' => array( Order_Meta::ACTION_PENDING => 'hold', Order_Meta::ACTION => 'hold' ) ) );
+		$this->orders->on_status_changed( 42, 'pending', 'cancelled', $hold );
+		$this->assertStringContainsString( 'hold not applied', $hold->notes[0][0] );
+
+		$cancel = $this->order( array( 'meta' => array( Order_Meta::ACTION_PENDING => 'cancel', Order_Meta::ACTION => 'cancel' ) ) );
+		$this->orders->on_status_changed( 42, 'pending', 'on-hold', $cancel );
+		$this->assertStringContainsString( 'cancellation not applied', $cancel->notes[0][0] );
+		$this->assertStringNotContainsString( 'hold not applied', $cancel->notes[0][0] );
 	}
 
 	public function test_gateway_setting_the_target_marks_applied() {
@@ -360,13 +438,19 @@ class WooCommerceOrdersTest extends TestCase {
 				'status'         => 'processing',
 				'meta'           => array(
 					Order_Meta::CHECKED_AT     => '2026-11-01T00:00:00+00:00',
+					Order_Meta::ACTION         => 'none',
 					Order_Meta::ACTION_APPLIED => '2026-11-01T00:00:01+00:00',
 				),
 			)
 		);
 		$a = $this->orders->score_order( $order, true );
 
-		$this->assertSame( 'hold', $a->action );
+		$this->assertSame( 'none', $a->action );
+		$this->assertSame( 'none', $order->get_meta( Order_Meta::ACTION ) );
+		$this->assertCount( 1, $order->notes );
+		$this->assertStringStartsWith( 'FraudNova re-check: score 30 (high)', $order->notes[0][0] );
+		$this->assertStringEndsWith( 'Status not changed.', $order->notes[0][0] );
+		$this->assertStringNotContainsString( 'Held for review', $order->notes[0][0] );
 		$this->assertArrayNotHasKey( Order_Meta::ACTION_PENDING, $order->meta );
 		$this->assertSame( '2026-11-01T00:00:01+00:00', $order->get_meta( Order_Meta::ACTION_APPLIED ) );
 		$this->assertNotSame( '2026-11-01T00:00:00+00:00', $order->get_meta( Order_Meta::CHECKED_AT ) );
@@ -374,6 +458,18 @@ class WooCommerceOrdersTest extends TestCase {
 		$this->assertSame( 'recheck', ( new Activity_Log() )->all()[0]['source'] );
 
 		$this->orders->on_status_changed( 42, 'processing', 'completed', $order );
+		$this->assertSame( array(), $order->status_changes );
+	}
+
+	public function test_check_now_on_unchecked_order_records_flag_not_hold() {
+		$this->expect_risky_checks( true );
+		$order = $this->order( array( 'status' => 'processing' ) );
+		$a     = $this->orders->score_order( $order, true );
+
+		$this->assertSame( 'flag', $a->action );
+		$this->assertSame( 'flag', $order->get_meta( Order_Meta::ACTION ) );
+		$this->assertArrayNotHasKey( Order_Meta::ACTION_PENDING, $order->meta );
+		$this->assertStringEndsWith( 'Status not changed.', $order->notes[0][0] );
 		$this->assertSame( array(), $order->status_changes );
 	}
 

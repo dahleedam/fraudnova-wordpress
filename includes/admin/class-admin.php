@@ -82,7 +82,7 @@ class Admin {
 	 * @return string[]
 	 */
 	public function screen_ids(): array {
-		$ids = array( 'settings_page_' . Settings_Page::SLUG, 'shop_order' );
+		$ids = array( 'settings_page_' . Settings_Page::SLUG, 'shop_order', 'edit-shop_order' );
 		if ( function_exists( 'wc_get_page_screen_id' ) ) {
 			$ids[] = (string) wc_get_page_screen_id( 'shop_order' );
 		}

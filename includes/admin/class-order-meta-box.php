@@ -107,6 +107,24 @@ class Order_Meta_Box {
 	}
 
 	/**
+	 * Label for the action FraudNova took on the order.
+	 *
+	 * @param string $action none|flag|hold|cancel.
+	 * @return string
+	 */
+	public function action_label( string $action ): string {
+		switch ( $action ) {
+			case Order_Assessment::ACTION_FLAG:
+				return __( 'Flagged for review', 'fraudnova' );
+			case Order_Assessment::ACTION_HOLD:
+				return __( 'Held for review', 'fraudnova' );
+			case Order_Assessment::ACTION_CANCEL:
+				return __( 'Cancelled', 'fraudnova' );
+		}
+		return __( 'No action', 'fraudnova' );
+	}
+
+	/**
 	 * Label for a check type.
 	 *
 	 * @param string $type Type.

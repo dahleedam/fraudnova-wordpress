@@ -13,6 +13,11 @@ if [ -z "$VERSION" ]; then
 	echo "Could not read Version from fraudnova.php" >&2
 	exit 1
 fi
+CONSTANT="$(sed -n "s/^define([[:space:]]*'FRAUDNOVA_VERSION',[[:space:]]*'\([^']*\)'.*/\1/p" fraudnova.php | head -n 1)"
+if [ "$VERSION" != "$CONSTANT" ]; then
+	echo "Version mismatch: fraudnova.php header says $VERSION, FRAUDNOVA_VERSION says $CONSTANT" >&2
+	exit 1
+fi
 if [ "$VERSION" != "$STABLE" ]; then
 	echo "Version mismatch: fraudnova.php says $VERSION, readme.txt Stable tag says $STABLE" >&2
 	exit 1
