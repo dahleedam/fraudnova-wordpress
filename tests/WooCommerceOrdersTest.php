@@ -126,8 +126,8 @@ class WooCommerceOrdersTest extends TestCase {
 			'phone',
 			'+923001234567',
 			Mockery::on(
-				function ( $o ) {
-					return 'PK' === $o['country'];
+				function ( $o ) use ( $bypass ) {
+					return 'PK' === $o['country'] && $bypass === $o['bypass_cache'];
 				}
 			)
 		)->andReturn( Check_Result::from_api( 'phone', array( 'fraud_score' => 30, 'valid' => false ) ) );
@@ -201,6 +201,11 @@ class WooCommerceOrdersTest extends TestCase {
 		$this->assertNotNull( $this->orders->score_order( $order ) );
 		$this->assertTrue( Woocommerce_Orders::looks_like_cod( 'pay_later', 'Cash-on-delivery' ) );
 		$this->assertFalse( Woocommerce_Orders::looks_like_cod( 'stripe', 'Credit card' ) );
+		$this->assertTrue( Woocommerce_Orders::looks_like_cod( 'cod', '' ) );
+		$this->assertTrue( Woocommerce_Orders::looks_like_cod( 'cod_fee', 'Pay later' ) );
+		$this->assertFalse( Woocommerce_Orders::looks_like_cod( 'qr_pay', 'QR code payment' ) );
+		$this->assertFalse( Woocommerce_Orders::looks_like_cod( 'barcode', 'Barcode' ) );
+		$this->assertFalse( Woocommerce_Orders::looks_like_cod( 'promo', 'Promo code' ) );
 	}
 
 	public function test_all_setting_scores_any_gateway() {
@@ -275,15 +280,67 @@ class WooCommerceOrdersTest extends TestCase {
 		$this->assertCount( 1, $order->status_changes );
 	}
 
-	public function test_status_changed_ignores_other_targets_and_loads_missing_order() {
+	public function test_status_changed_loads_missing_order_and_cancels() {
 		$order = $this->order( array( 'meta' => array( Order_Meta::ACTION_PENDING => 'cancel' ) ) );
-		$this->orders->on_status_changed( 42, 'pending', 'on-hold', $order );
-		$this->orders->on_status_changed( 42, 'pending', 'cancelled', $order );
-		$this->assertSame( array(), $order->status_changes );
-
 		Functions\expect( 'wc_get_order' )->once()->with( 42 )->andReturn( $order );
 		$this->orders->on_status_changed( 42, 'pending', 'completed', null );
+		$this->assertCount( 1, $order->status_changes );
 		$this->assertSame( 'cancelled', $order->status_changes[0][0] );
+	}
+
+	public function test_gateway_on_hold_consumes_pending_cancel_and_later_approval_is_untouched() {
+		$order = $this->order( array( 'meta' => array( Order_Meta::ACTION_PENDING => 'cancel', Order_Meta::ACTION => 'cancel' ) ) );
+		$this->orders->on_status_changed( 42, 'pending', 'on-hold', $order );
+		$this->assertArrayNotHasKey( Order_Meta::ACTION_PENDING, $order->meta );
+		$this->assertSame( 'flag', $order->get_meta( Order_Meta::ACTION ) );
+		$this->assertStringContainsString( 'hold not applied', $order->notes[0][0] );
+		$this->assertStringContainsString( 'on-hold', $order->notes[0][0] );
+
+		$this->orders->on_status_changed( 42, 'on-hold', 'processing', $order );
+		$this->assertSame( array(), $order->status_changes );
+	}
+
+	public function test_gateway_setting_the_target_marks_applied() {
+		$order = $this->order( array( 'meta' => array( Order_Meta::ACTION_PENDING => 'hold', Order_Meta::ACTION => 'hold' ) ) );
+		$this->orders->on_status_changed( 42, 'pending', 'on-hold', $order );
+		$this->assertSame( array(), $order->status_changes );
+		$this->assertArrayNotHasKey( Order_Meta::ACTION_PENDING, $order->meta );
+		$this->assertNotSame( '', $order->get_meta( Order_Meta::ACTION_APPLIED ) );
+		$this->assertSame( 'hold', $order->get_meta( Order_Meta::ACTION ) );
+		$this->assertSame( array(), $order->notes );
+	}
+
+	public function test_later_manual_transition_never_applies_pending() {
+		$order = $this->order( array( 'meta' => array( Order_Meta::ACTION_PENDING => 'hold' ) ) );
+		$this->orders->on_status_changed( 42, 'on-hold', 'processing', $order );
+		$this->assertSame( array(), $order->status_changes );
+	}
+
+	public function test_card_payment_at_apply_time_is_flagged_only() {
+		$order = $this->order(
+			array(
+				'transaction_id' => 'ch_9',
+				'meta'           => array(
+					Order_Meta::ACTION_PENDING => 'hold',
+					Order_Meta::ACTION         => 'hold',
+				),
+			)
+		);
+		$this->orders->on_status_changed( 42, 'pending', 'processing', $order );
+		$this->assertSame( array(), $order->status_changes );
+		$this->assertSame( 'flag', $order->get_meta( Order_Meta::ACTION ) );
+		$this->assertArrayNotHasKey( Order_Meta::ACTION_PENDING, $order->meta );
+		$this->assertStringContainsString( 'paid by card, flagged only', $order->notes[0][0] );
+		$this->assertSame( 1, $order->saves );
+	}
+
+	public function test_scoring_error_adds_retry_note_and_never_throws() {
+		$this->scorer->shouldReceive( 'score' )->andThrow( new \RuntimeException( 'boom' ) );
+		$order = $this->order();
+		$this->orders->handle_store_api( $order );
+		$this->assertCount( 1, $order->notes );
+		$this->assertStringContainsString( 'check failed (boom)', $order->notes[0][0] );
+		$this->assertSame( 2, $order->saves );
 	}
 
 	public function test_paid_by_card_order_is_flagged_not_held() {

@@ -86,6 +86,15 @@ class OrderMetaTest extends TestCase {
 		$this->assertSame( $order->get_meta( Order_Meta::CHECKED_AT ), $read['checked_at'] );
 	}
 
+	public function test_read_of_started_check_reports_unknown_level() {
+		$order = new \WC_Order( 7 );
+		Order_Meta::mark_checking( $order );
+		$read = Order_Meta::read( $order );
+		$this->assertSame( 'unknown', $read['assessment']->level );
+		$this->assertNull( $read['assessment']->score );
+		$this->assertSame( array(), $read['results'] );
+	}
+
 	public function test_mark_checking_sets_checked_and_saves() {
 		$order = new \WC_Order( 7 );
 		$this->assertFalse( Order_Meta::is_checked( $order ) );

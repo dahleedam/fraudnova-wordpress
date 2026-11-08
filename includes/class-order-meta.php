@@ -110,9 +110,10 @@ final class Order_Meta {
 			return null;
 		}
 
+		$level      = (string) $order->get_meta( self::LEVEL );
 		$assessment = Order_Assessment::from_meta(
 			array(
-				'level'            => $order->get_meta( self::LEVEL ),
+				'level'            => '' === $level ? Order_Assessment::LEVEL_UNKNOWN : $level,
 				'score'            => $order->get_meta( self::SCORE ),
 				'reasons'          => $order->get_meta( self::REASONS ),
 				'action'           => $order->get_meta( self::ACTION ),

@@ -115,14 +115,31 @@ final class Woocommerce_Orders {
 		try {
 			$this->score_order( $order );
 		} catch ( \Throwable $e ) {
-			$this->plugin->log()->record(
-				array(
-					'source'   => 'order',
-					'type'     => 'order',
-					'order_id' => $order->get_id(),
-					'message'  => $e->getMessage(),
-				)
-			);
+			$message = $e->getMessage();
+			try {
+				$order->add_order_note(
+					sprintf(
+						/* translators: %s: error message. */
+						__( 'FraudNova: the check failed (%s). Use Check now on the order screen to retry.', 'fraudnova' ),
+						$message
+					)
+				);
+				$order->save();
+			} catch ( \Throwable $ignored ) {
+				unset( $ignored );
+			}
+			try {
+				$this->plugin->log()->record(
+					array(
+						'source'   => 'order',
+						'type'     => 'order',
+						'order_id' => $order->get_id(),
+						'message'  => $message,
+					)
+				);
+			} catch ( \Throwable $ignored ) {
+				unset( $ignored );
+			}
 		}
 	}
 
@@ -156,7 +173,7 @@ final class Woocommerce_Orders {
 	 * @return bool
 	 */
 	public static function looks_like_cod( string $id, string $title ): bool {
-		return (bool) preg_match( '/cod|cash.?on.?delivery/i', $id . ' ' . $title );
+		return (bool) preg_match( '/(?<![a-z])cod(?![a-z])|cash.?on.?delivery/i', $id . ' ' . $title );
 	}
 
 	/**
@@ -247,7 +264,9 @@ final class Woocommerce_Orders {
 	}
 
 	/**
-	 * Generic seam for third-party COD gateways that set the status directly.
+	 * Generic seam for gateways that set the status themselves. A pending
+	 * action is consumed on the first transition out of an unpaid status;
+	 * later (manual) transitions never apply it.
 	 *
 	 * @param int    $order_id Order ID.
 	 * @param string $from     Old status.
@@ -262,20 +281,55 @@ final class Woocommerce_Orders {
 		if ( ! is_object( $order ) || ! method_exists( $order, 'get_meta' ) ) {
 			return;
 		}
-		$pending = (string) $order->get_meta( Order_Meta::ACTION_PENDING );
-		$target  = self::target( $pending );
+		$target = self::target( (string) $order->get_meta( Order_Meta::ACTION_PENDING ) );
 		if ( '' === $target || '' !== (string) $order->get_meta( Order_Meta::ACTION_APPLIED ) ) {
 			return;
 		}
-		if ( ! in_array( $to, array( 'processing', 'completed' ), true ) || $to === $target ) {
+		if ( ! in_array( (string) $from, array( '', 'pending', 'checkout-draft', 'failed' ), true ) ) {
 			return;
 		}
 
-		$this->mark_applied( $order );
-		$note = 'on-hold' === $target
-			? __( 'FraudNova: held for review.', 'fraudnova' )
-			: __( 'FraudNova: cancelled after a fraud check.', 'fraudnova' );
-		$order->update_status( $target, $note );
+		if ( '' !== (string) $order->get_transaction_id() ) {
+			$this->downgrade( $order, __( 'FraudNova: paid by card, flagged only.', 'fraudnova' ) );
+			return;
+		}
+
+		if ( in_array( $to, array( 'processing', 'completed' ), true ) ) {
+			$this->mark_applied( $order );
+			$note = 'on-hold' === $target
+				? __( 'FraudNova: held for review.', 'fraudnova' )
+				: __( 'FraudNova: cancelled after a fraud check.', 'fraudnova' );
+			$order->update_status( $target, $note );
+			return;
+		}
+
+		if ( $to === $target ) {
+			$this->mark_applied( $order );
+			return;
+		}
+
+		$this->downgrade(
+			$order,
+			sprintf(
+				/* translators: %s: order status. */
+				__( 'FraudNova: hold not applied — the payment method moved the order to %s.', 'fraudnova' ),
+				(string) $to
+			)
+		);
+	}
+
+	/**
+	 * Drop a pending action and record the order as flagged only.
+	 *
+	 * @param mixed  $order WC_Order.
+	 * @param string $note  Order note.
+	 * @return void
+	 */
+	private function downgrade( $order, string $note ): void {
+		$order->delete_meta_data( Order_Meta::ACTION_PENDING );
+		$order->update_meta_data( Order_Meta::ACTION, Order_Assessment::ACTION_FLAG );
+		$order->add_order_note( $note );
+		$order->save();
 	}
 
 	/**
