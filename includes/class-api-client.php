@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Thin transport over wp_remote_get(); no retries, sleeping or logging.
  */
-final class Api_Client {
+class Api_Client {
 
 	const DEFAULT_BASE_URL = 'https://fraudnova.com/api/v1';
 

@@ -50,6 +50,20 @@ class Plugin {
 	private $error_state = null;
 
 	/**
+	 * Cache instance.
+	 *
+	 * @var Cache|null
+	 */
+	private $cache = null;
+
+	/**
+	 * Scorer instance.
+	 *
+	 * @var Scorer|null
+	 */
+	private $scorer = null;
+
+	/**
 	 * Constructor.
 	 */
 	private function __construct() {}
@@ -112,6 +126,30 @@ class Plugin {
 			$this->error_state = new Error_State();
 		}
 		return $this->error_state;
+	}
+
+	/**
+	 * Get the cache.
+	 *
+	 * @return Cache
+	 */
+	public function cache(): Cache {
+		if ( null === $this->cache ) {
+			$this->cache = new Cache();
+		}
+		return $this->cache;
+	}
+
+	/**
+	 * Get the scorer.
+	 *
+	 * @return Scorer
+	 */
+	public function scorer(): Scorer {
+		if ( null === $this->scorer ) {
+			$this->scorer = new Scorer( $this->api_client(), $this->cache(), $this->settings(), $this->log(), $this->error_state() );
+		}
+		return $this->scorer;
 	}
 
 	/**
