@@ -203,6 +203,8 @@ class Plugin {
 			( new Integrations\Contact_Form_7( $this ) )->register();
 		}
 
+		( new Privacy( $this ) )->register();
+
 		if ( is_admin() ) {
 			( new Admin\Admin( $this ) )->register();
 		}
