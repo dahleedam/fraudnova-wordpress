@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    name: PHP ${{ matrix.php }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['7.4', '8.0', '8.2', '8.4']
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Coding standards
+        run: vendor/bin/phpcs
+
+      - name: Tests
+        run: vendor/bin/phpunit
+
+  build:
+    name: Build zip
+    needs: test
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Build
+        run: bin/build-zip.sh
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fraudnova-zip
+          path: dist/*.zip
+
+  pot:
+    name: Translation template is current
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Regenerate and compare
+        run: |
+          cp languages/fraudnova.pot "$RUNNER_TEMP/committed.pot"
+          composer make-pot
+          diff -u -I '^"POT-Creation-Date:' "$RUNNER_TEMP/committed.pot" languages/fraudnova.pot

@@ -1,0 +1,765 @@
+# Copyright (C) 2026 FraudNova
+# This file is distributed under the GPL-2.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: FraudNova 1.0.0\n"
+"Report-Msgid-Bugs-To: https://github.com/dahleedam/fraudnova-wordpress/issues\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-11-08T07:56:31+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: fraudnova\n"
+
+#. Plugin Name of the plugin
+#: fraudnova.php:3
+msgid "FraudNova – Fraud Detection for WooCommerce and Forms"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: fraudnova.php:4
+msgid "https://fraudnova.com/docs#wordpress"
+msgstr ""
+
+#. Description of the plugin
+#: fraudnova.php:5
+msgid "Scores the IP address, phone number and email of every new WooCommerce order and holds risky cash-on-delivery orders for review. Blocks throwaway emails and proxy traffic on registration and Contact Form 7 forms."
+msgstr ""
+
+#. Author of the plugin
+#: fraudnova.php:12
+#: includes/admin/class-admin.php:71
+#: includes/admin/class-admin.php:72
+#: includes/admin/class-order-meta-box.php:43
+#: includes/admin/class-settings-page.php:274
+msgid "FraudNova"
+msgstr ""
+
+#. Author URI of the plugin
+#: fraudnova.php:13
+msgid "https://fraudnova.com"
+msgstr ""
+
+#. translators: 1: minimum PHP version, 2: minimum WordPress version.
+#: fraudnova.php:52
+#, php-format
+msgid "FraudNova requires PHP %1$s or newer and WordPress %2$s or newer. The plugin is inactive."
+msgstr ""
+
+#: includes/admin/class-admin.php:115
+msgid "Testing…"
+msgstr ""
+
+#: includes/admin/class-admin.php:116
+msgid "The connection test failed. Please try again."
+msgstr ""
+
+#: includes/admin/class-admin.php:135
+msgid "Settings"
+msgstr ""
+
+#: includes/admin/class-ajax.php:84
+#: includes/admin/class-ajax.php:145
+#: includes/admin/class-recheck.php:55
+msgid "You are not allowed to do this."
+msgstr ""
+
+#. translators: %s: number of credits.
+#: includes/admin/class-ajax.php:107
+#, php-format
+msgid "Connected. %s credits remaining."
+msgstr ""
+
+#: includes/admin/class-ajax.php:126
+msgid "Enter your API key first."
+msgstr ""
+
+#: includes/admin/class-ajax.php:128
+msgid "The API key was rejected."
+msgstr ""
+
+#. translators: %s: transport error message.
+#: includes/admin/class-ajax.php:131
+#, php-format
+msgid "Could not reach fraudnova.com: %s"
+msgstr ""
+
+#: includes/admin/class-ajax.php:133
+#: includes/class-api-response.php:98
+msgid "Unexpected response from FraudNova."
+msgstr ""
+
+#. translators: %s: settings page URL.
+#: includes/admin/class-notices.php:65
+#, php-format
+msgid "FraudNova needs an API key. <a href=\"%s\">Add it in Settings → FraudNova</a>."
+msgstr ""
+
+#. translators: %s: settings page URL.
+#: includes/admin/class-notices.php:79
+#, php-format
+msgid "FraudNova: your API key was rejected. <a href=\"%s\">Check the settings</a>."
+msgstr ""
+
+#. translators: %s: billing page URL.
+#: includes/admin/class-notices.php:91
+#, php-format
+msgid "FraudNova: your account is out of credits, so checks are skipped and orders are not held. <a href=\"%s\">Buy credits</a>."
+msgstr ""
+
+#: includes/admin/class-notices.php:113
+msgid "Your FraudNova account is out of credits, so new orders and forms are not being checked."
+msgstr ""
+
+#: includes/admin/class-notices.php:114
+msgid "Buy credits to resume fraud checks:"
+msgstr ""
+
+#: includes/admin/class-notices.php:117
+msgid "FraudNova: your account is out of credits"
+msgstr ""
+
+#: includes/admin/class-order-list-column.php:41
+msgid "Risk"
+msgstr ""
+
+#: includes/admin/class-order-meta-box.php:85
+msgid "Clean"
+msgstr ""
+
+#: includes/admin/class-order-meta-box.php:88
+msgid "Review"
+msgstr ""
+
+#: includes/admin/class-order-meta-box.php:91
+msgid "High"
+msgstr ""
+
+#: includes/admin/class-order-meta-box.php:94
+msgid "Not checked"
+msgstr ""
+
+#: includes/admin/class-order-meta-box.php:97
+msgid "Unknown"
+msgstr ""
+
+#: includes/admin/class-order-meta-box.php:118
+#: includes/admin/views/settings-orders.php:104
+msgid "IP address"
+msgstr ""
+
+#: includes/admin/class-order-meta-box.php:120
+msgid "Phone"
+msgstr ""
+
+#: includes/admin/class-order-meta-box.php:122
+msgid "Email"
+msgstr ""
+
+#: includes/admin/class-order-meta-box.php:135
+msgid "nothing to check"
+msgstr ""
+
+#: includes/admin/class-order-meta-box.php:137
+msgid "private address"
+msgstr ""
+
+#: includes/admin/class-order-meta-box.php:139
+msgid "time budget exhausted"
+msgstr ""
+
+#: includes/admin/class-order-meta-box.php:152
+msgid "Proxy"
+msgstr ""
+
+#: includes/admin/class-order-meta-box.php:153
+msgid "VPN"
+msgstr ""
+
+#: includes/admin/class-order-meta-box.php:154
+msgid "Tor"
+msgstr ""
+
+#: includes/admin/class-order-meta-box.php:155
+msgid "Active VPN"
+msgstr ""
+
+#: includes/admin/class-order-meta-box.php:156
+msgid "Active Tor"
+msgstr ""
+
+#: includes/admin/class-order-meta-box.php:157
+msgid "Recent abuse"
+msgstr ""
+
+#: includes/admin/class-order-meta-box.php:158
+msgid "Bot"
+msgstr ""
+
+#: includes/admin/class-order-meta-box.php:159
+msgid "Disposable"
+msgstr ""
+
+#: includes/admin/class-order-meta-box.php:160
+msgid "Honeypot"
+msgstr ""
+
+#: includes/admin/class-order-meta-box.php:161
+msgid "Leaked"
+msgstr ""
+
+#: includes/admin/class-order-meta-box.php:162
+msgid "VOIP"
+msgstr ""
+
+#: includes/admin/class-order-meta-box.php:163
+msgid "Prepaid"
+msgstr ""
+
+#: includes/admin/class-order-meta-box.php:164
+msgid "Risky"
+msgstr ""
+
+#: includes/admin/class-order-meta-box.php:171
+msgid "Invalid"
+msgstr ""
+
+#: includes/admin/class-order-meta-box.php:171
+msgid "Inactive"
+msgstr ""
+
+#: includes/admin/class-recheck.php:60
+msgid "Order not found."
+msgstr ""
+
+#: includes/admin/class-recheck.php:76
+msgid "FraudNova re-checked this order."
+msgstr ""
+
+#: includes/admin/class-settings-page.php:77
+msgid "General"
+msgstr ""
+
+#: includes/admin/class-settings-page.php:78
+msgid "Orders"
+msgstr ""
+
+#: includes/admin/class-settings-page.php:79
+msgid "Forms"
+msgstr ""
+
+#: includes/admin/class-settings-page.php:80
+msgid "Activity"
+msgstr ""
+
+#: includes/admin/class-settings-page.php:244
+msgid "Off"
+msgstr ""
+
+#: includes/admin/class-settings-page.php:245
+#: includes/admin/views/settings-orders.php:158
+msgid "Needs review"
+msgstr ""
+
+#: includes/admin/class-settings-page.php:246
+#: includes/admin/views/settings-orders.php:159
+msgid "High risk"
+msgstr ""
+
+#: includes/admin/class-settings-page.php:247
+msgid "Flag only (add a note)"
+msgstr ""
+
+#: includes/admin/class-settings-page.php:248
+msgid "Put on hold"
+msgstr ""
+
+#: includes/admin/class-settings-page.php:249
+msgid "Cancel the order"
+msgstr ""
+
+#: includes/admin/class-settings-page.php:250
+msgid "Let the order through"
+msgstr ""
+
+#: includes/admin/class-settings-page.php:251
+msgid "WooCommerce"
+msgstr ""
+
+#: includes/admin/class-settings-page.php:252
+msgid "Connecting address (REMOTE_ADDR)"
+msgstr ""
+
+#: includes/admin/class-settings-page.php:253
+msgid "Cloudflare (CF-Connecting-IP)"
+msgstr ""
+
+#. translators: %s: date and time.
+#: includes/admin/views/order-meta-box.php:32
+#, php-format
+msgid "Checked %s"
+msgstr ""
+
+#. translators: %s: reason a check was skipped.
+#: includes/admin/views/order-meta-box.php:59
+#, php-format
+msgid "Skipped: %s"
+msgstr ""
+
+#. translators: %s: error message.
+#: includes/admin/views/order-meta-box.php:64
+#, php-format
+msgid "Error: %s"
+msgstr ""
+
+#: includes/admin/views/order-meta-box.php:98
+msgid "Check again (uses up to 3 credits)"
+msgstr ""
+
+#: includes/admin/views/order-meta-box.php:99
+msgid "Check now (uses up to 3 credits)"
+msgstr ""
+
+#: includes/admin/views/settings-activity.php:15
+msgid "Activity log cleared."
+msgstr ""
+
+#. translators: 1: number of credits, 2: date and time of the last check.
+#: includes/admin/views/settings-activity.php:23
+#, php-format
+msgid "Balance: %1$s credits (as of %2$s)."
+msgstr ""
+
+#: includes/admin/views/settings-activity.php:29
+msgid "Balance: Unknown — use Test connection."
+msgstr ""
+
+#: includes/admin/views/settings-activity.php:36
+msgid "Time"
+msgstr ""
+
+#: includes/admin/views/settings-activity.php:37
+msgid "Source"
+msgstr ""
+
+#: includes/admin/views/settings-activity.php:38
+msgid "Type"
+msgstr ""
+
+#: includes/admin/views/settings-activity.php:39
+msgid "Subject"
+msgstr ""
+
+#: includes/admin/views/settings-activity.php:40
+msgid "Score"
+msgstr ""
+
+#: includes/admin/views/settings-activity.php:41
+msgid "Level"
+msgstr ""
+
+#: includes/admin/views/settings-activity.php:42
+msgid "Action"
+msgstr ""
+
+#: includes/admin/views/settings-activity.php:43
+msgid "Message"
+msgstr ""
+
+#: includes/admin/views/settings-activity.php:48
+msgid "No activity yet"
+msgstr ""
+
+#: includes/admin/views/settings-activity.php:81
+msgid "Clear"
+msgstr ""
+
+#: includes/admin/views/settings-forms.php:17
+#: includes/admin/views/settings-forms.php:20
+msgid "Protected forms"
+msgstr ""
+
+#: includes/admin/views/settings-forms.php:23
+msgid "WordPress registration"
+msgstr ""
+
+#: includes/admin/views/settings-forms.php:26
+msgid "(registration is turned off in Settings → General)"
+msgstr ""
+
+#: includes/admin/views/settings-forms.php:31
+msgid "WooCommerce account registration"
+msgstr ""
+
+#: includes/admin/views/settings-forms.php:34
+msgid "(WooCommerce is not active)"
+msgstr ""
+
+#: includes/admin/views/settings-forms.php:44
+msgid "Contact Form 7 forms"
+msgstr ""
+
+#: includes/admin/views/settings-forms.php:47
+msgid "(install and activate Contact Form 7 to use this)"
+msgstr ""
+
+#: includes/admin/views/settings-forms.php:53
+#: includes/admin/views/settings-forms.php:56
+#: includes/admin/views/settings-orders.php:100
+#: includes/admin/views/settings-orders.php:103
+msgid "What to check"
+msgstr ""
+
+#: includes/admin/views/settings-forms.php:57
+msgid "Visitor IP address"
+msgstr ""
+
+#: includes/admin/views/settings-forms.php:58
+msgid "Submitted email"
+msgstr ""
+
+#: includes/admin/views/settings-forms.php:59
+#: includes/admin/views/settings-orders.php:107
+msgid "Each check uses one credit."
+msgstr ""
+
+#: includes/admin/views/settings-forms.php:64
+msgid "Block threshold"
+msgstr ""
+
+#: includes/admin/views/settings-forms.php:67
+msgid "Submissions with a fraud score at or above this are blocked."
+msgstr ""
+
+#: includes/admin/views/settings-forms.php:71
+#: includes/admin/views/settings-forms.php:74
+msgid "Always block when"
+msgstr ""
+
+#: includes/admin/views/settings-forms.php:75
+msgid "The email is disposable"
+msgstr ""
+
+#: includes/admin/views/settings-forms.php:76
+msgid "The email is invalid"
+msgstr ""
+
+#: includes/admin/views/settings-forms.php:77
+msgid "The IP is a proxy, VPN or Tor exit"
+msgstr ""
+
+#: includes/admin/views/settings-forms.php:78
+msgid "The IP has recent abuse"
+msgstr ""
+
+#: includes/admin/views/settings-forms.php:83
+msgid "Block message"
+msgstr ""
+
+#: includes/admin/views/settings-forms.php:86
+msgid "Shown to the visitor when a submission is blocked. Plain text only."
+msgstr ""
+
+#: includes/admin/views/settings-general.php:16
+msgid "API key"
+msgstr ""
+
+#: includes/admin/views/settings-general.php:26
+msgid "Test connection"
+msgstr ""
+
+#: includes/admin/views/settings-general.php:29
+msgid "Defined as FRAUDNOVA_API_KEY in wp-config.php, which overrides this field."
+msgstr ""
+
+#. translators: %s: link to the FraudNova dashboard.
+#: includes/admin/views/settings-general.php:35
+#, php-format
+msgid "Create a key in your %s. Save the key before testing the connection."
+msgstr ""
+
+#: includes/admin/views/settings-general.php:36
+msgid "FraudNova dashboard"
+msgstr ""
+
+#: includes/admin/views/settings-general.php:44
+msgid "Test mode"
+msgstr ""
+
+#: includes/admin/views/settings-general.php:48
+msgid "Score and log orders, but never hold or cancel them"
+msgstr ""
+
+#: includes/admin/views/settings-general.php:50
+msgid "Leave this on until the Activity tab shows the results you expect."
+msgstr ""
+
+#: includes/admin/views/settings-general.php:54
+msgid "Low-credit email"
+msgstr ""
+
+#: includes/admin/views/settings-general.php:58
+msgid "Email the site admin when the account runs out of credits (at most once a day)"
+msgstr ""
+
+#: includes/admin/views/settings-general.php:63
+msgid "Uninstall"
+msgstr ""
+
+#: includes/admin/views/settings-general.php:67
+msgid "Delete all FraudNova settings and the activity log when the plugin is deleted"
+msgstr ""
+
+#: includes/admin/views/settings-general.php:72
+msgid "Links"
+msgstr ""
+
+#: includes/admin/views/settings-general.php:74
+msgid "Dashboard"
+msgstr ""
+
+#: includes/admin/views/settings-general.php:76
+msgid "Buy credits"
+msgstr ""
+
+#: includes/admin/views/settings-general.php:78
+msgid "Documentation"
+msgstr ""
+
+#: includes/admin/views/settings-orders.php:18
+msgid "Phone number is invalid"
+msgstr ""
+
+#: includes/admin/views/settings-orders.php:19
+msgid "Phone number is VOIP"
+msgstr ""
+
+#: includes/admin/views/settings-orders.php:20
+msgid "Email is disposable"
+msgstr ""
+
+#: includes/admin/views/settings-orders.php:21
+msgid "IP is a proxy, VPN or Tor exit"
+msgstr ""
+
+#: includes/admin/views/settings-orders.php:22
+msgid "IP has recent abuse"
+msgstr ""
+
+#: includes/admin/views/settings-orders.php:23
+msgid "Email has recent abuse"
+msgstr ""
+
+#: includes/admin/views/settings-orders.php:26
+msgid "The address WooCommerce recorded on the order (default). Trusts proxy headers the same way WooCommerce does."
+msgstr ""
+
+#: includes/admin/views/settings-orders.php:27
+msgid "The connecting address only. Correct when the site is not behind a proxy or CDN; header-safe."
+msgstr ""
+
+#: includes/admin/views/settings-orders.php:28
+msgid "The CF-Connecting-IP header, for sites behind Cloudflare. Only safe if visitors cannot reach the server directly."
+msgstr ""
+
+#: includes/admin/views/settings-orders.php:33
+msgid "Test mode is on: orders are scored and logged but never held or cancelled."
+msgstr ""
+
+#: includes/admin/views/settings-orders.php:39
+msgid "WooCommerce is not active. These settings take effect once it is."
+msgstr ""
+
+#: includes/admin/views/settings-orders.php:45
+msgid "Order checks"
+msgstr ""
+
+#: includes/admin/views/settings-orders.php:49
+msgid "Score new WooCommerce orders"
+msgstr ""
+
+#: includes/admin/views/settings-orders.php:54
+#: includes/admin/views/settings-orders.php:57
+msgid "Payment methods"
+msgstr ""
+
+#: includes/admin/views/settings-orders.php:60
+msgid "Every payment method"
+msgstr ""
+
+#: includes/admin/views/settings-orders.php:73
+msgid "(disabled)"
+msgstr ""
+
+#: includes/admin/views/settings-orders.php:80
+msgid "Leave everything unticked to detect cash-on-delivery gateways automatically."
+msgstr ""
+
+#: includes/admin/views/settings-orders.php:85
+#: includes/admin/views/settings-orders.php:88
+msgid "Customer IP address"
+msgstr ""
+
+#: includes/admin/views/settings-orders.php:105
+msgid "Billing phone"
+msgstr ""
+
+#: includes/admin/views/settings-orders.php:106
+msgid "Billing email"
+msgstr ""
+
+#: includes/admin/views/settings-orders.php:112
+msgid "IP strictness"
+msgstr ""
+
+#: includes/admin/views/settings-orders.php:119
+msgid "Higher levels catch more proxies but flag more legitimate visitors. 1 suits most stores."
+msgstr ""
+
+#: includes/admin/views/settings-orders.php:123
+msgid "Review threshold"
+msgstr ""
+
+#: includes/admin/views/settings-orders.php:126
+msgid "Orders with a fraud score at or above this need review."
+msgstr ""
+
+#: includes/admin/views/settings-orders.php:130
+msgid "High-risk threshold"
+msgstr ""
+
+#: includes/admin/views/settings-orders.php:133
+msgid "Orders with a fraud score at or above this are high risk. Never lower than the review threshold."
+msgstr ""
+
+#: includes/admin/views/settings-orders.php:137
+msgid "Rules"
+msgstr ""
+
+#: includes/admin/views/settings-orders.php:153
+msgid "A matching rule raises the order to at least that level, whatever the score."
+msgstr ""
+
+#: includes/admin/views/settings-orders.php:160
+msgid "When a check fails"
+msgstr ""
+
+#: includes/admin/views/settings-orders.php:169
+msgid "Treat as needs review"
+msgstr ""
+
+#: includes/admin/views/settings-orders.php:177
+msgid "Hold emails"
+msgstr ""
+
+#: includes/admin/views/settings-orders.php:181
+msgid "Do not send the customer the \"order on hold\" email when FraudNova holds an order"
+msgstr ""
+
+#: includes/class-api-client.php:125
+#: includes/class-scorer.php:86
+msgid "No FraudNova API key is configured."
+msgstr ""
+
+#: includes/class-order-assessment.php:214
+msgid "FraudNova: no check could be completed"
+msgstr ""
+
+#. translators: 1: fraud score, 2: level.
+#: includes/class-order-assessment.php:221
+#, php-format
+msgid "FraudNova: score %1$d (%2$s)"
+msgstr ""
+
+#: includes/class-order-assessment.php:234
+msgid "Flagged for review."
+msgstr ""
+
+#: includes/class-order-assessment.php:235
+msgid "Held for review."
+msgstr ""
+
+#: includes/class-order-assessment.php:236
+msgid "Cancelled."
+msgstr ""
+
+#: includes/class-order-assessment.php:244
+msgid "(test mode, no action taken)"
+msgstr ""
+
+#: includes/class-order-assessment.php:247
+msgid "(paid by card, flagged only)"
+msgstr ""
+
+#. translators: 1: privacy policy URL, 2: terms URL.
+#: includes/class-privacy.php:76
+#, php-format
+msgid "This site uses FraudNova (fraudnova.com) to score visitors for fraud risk. To obtain a fraud score, it sends the customer IP address, billing phone number, billing country and email address of new orders, and the IP address and email address of registrations and form submissions, to FraudNova. The score and risk flags are stored on the order, and a masked activity log is kept in the site administration, visible to administrators only. See the FraudNova <a href=\"%1$s\">privacy policy</a> and <a href=\"%2$s\">terms</a>."
+msgstr ""
+
+#: includes/class-reasons.php:26
+msgid "Phone number invalid"
+msgstr ""
+
+#: includes/class-reasons.php:28
+msgid "VOIP or risky phone number"
+msgstr ""
+
+#: includes/class-reasons.php:30
+msgid "Disposable or invalid email"
+msgstr ""
+
+#: includes/class-reasons.php:32
+msgid "Email linked to recent abuse"
+msgstr ""
+
+#: includes/class-reasons.php:34
+msgid "Proxy, VPN or Tor"
+msgstr ""
+
+#: includes/class-reasons.php:36
+msgid "IP linked to recent abuse or bots"
+msgstr ""
+
+#: includes/class-reasons.php:38
+msgid "A check could not be completed"
+msgstr ""
+
+#. translators: %d: fraud score.
+#: includes/class-reasons.php:42
+#, php-format
+msgid "Fraud score %d"
+msgstr ""
+
+#. translators: %d: seconds.
+#: includes/class-scorer.php:97
+#, php-format
+msgid "Backing off for %d s"
+msgstr ""
+
+#. translators: %s: error message.
+#: includes/integrations/class-woocommerce-orders.php:123
+#, php-format
+msgid "FraudNova: the check failed (%s). Use Check now on the order screen to retry."
+msgstr ""
+
+#: includes/integrations/class-woocommerce-orders.php:293
+msgid "FraudNova: paid by card, flagged only."
+msgstr ""
+
+#: includes/integrations/class-woocommerce-orders.php:300
+msgid "FraudNova: held for review."
+msgstr ""
+
+#: includes/integrations/class-woocommerce-orders.php:301
+msgid "FraudNova: cancelled after a fraud check."
+msgstr ""
+
+#. translators: %s: order status.
+#: includes/integrations/class-woocommerce-orders.php:315
+#, php-format
+msgid "FraudNova: hold not applied — the payment method moved the order to %s."
+msgstr ""

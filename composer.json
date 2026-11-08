@@ -13,7 +13,9 @@
 		"phpcompatibility/phpcompatibility-wp": "^2.1",
 		"dealerdirect/phpcodesniffer-composer-installer": "^1.0",
 		"php-stubs/wordpress-stubs": "^6.9",
-		"php-stubs/woocommerce-stubs": "^9.0"
+		"php-stubs/woocommerce-stubs": "^9.0",
+		"wp-cli/i18n-command": "^2.6",
+		"wp-cli/wp-cli": "^2.11"
 	},
 	"config": {
 		"platform": {
@@ -31,6 +33,7 @@
 	"scripts": {
 		"test": "phpunit",
 		"lint": "phpcs",
-		"lint:fix": "phpcbf"
+		"lint:fix": "phpcbf",
+		"make-pot": "@php vendor/wp-cli/wp-cli/php/boot-fs.php i18n make-pot . languages/fraudnova.pot --slug=fraudnova --domain=fraudnova --exclude=vendor,tests,dist,node_modules --headers='{\"Project-Id-Version\":\"FraudNova 1.0.0\",\"Report-Msgid-Bugs-To\":\"https://github.com/dahleedam/fraudnova-wordpress/issues\"}'"
 	}
 }

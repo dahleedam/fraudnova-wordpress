@@ -15,3 +15,5 @@ phpunit.xml.dist
 README.md
 CHANGELOG.md
 docs
+.DS_Store
+node_modules

@@ -1,0 +1,29 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Check the tag matches the plugin version
+        run: |
+          VERSION="$(sed -n 's/^[ *]*Version:[[:space:]]*\([^[:space:]]*\).*/\1/p' fraudnova.php | head -n 1)"
+          if [ "v$VERSION" != "$GITHUB_REF_NAME" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match plugin version $VERSION" >&2
+            exit 1
+          fi
+
+      - name: Build
+        run: bin/build-zip.sh
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.zip
