@@ -71,7 +71,7 @@ final class Api_Client {
 		$args  = (array) apply_filters( 'fraudnova_ip_request_args', $args, $ip );
 		$query = array( 'ip' => $ip );
 		foreach ( array( 'strictness', 'user_agent', 'user_language' ) as $key ) {
-			if ( isset( $args[ $key ] ) && '' !== $args[ $key ] ) {
+			if ( isset( $args[ $key ] ) && is_scalar( $args[ $key ] ) && '' !== $args[ $key ] ) {
 				$query[ $key ] = $args[ $key ];
 			}
 		}
@@ -127,7 +127,7 @@ final class Api_Client {
 
 		$url = $this->base_url() . $path;
 		if ( $query ) {
-			$url = add_query_arg( $query, $url );
+			$url .= '?' . http_build_query( $query, '', '&', PHP_QUERY_RFC3986 );
 		}
 
 		$response = wp_remote_get(

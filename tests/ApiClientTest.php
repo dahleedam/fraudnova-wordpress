@@ -22,11 +22,6 @@ class ApiClientTest extends TestCase {
 	 */
 	protected function setUp(): void {
 		parent::setUp();
-		Functions\when( 'add_query_arg' )->alias(
-			function ( $args, $url ) {
-				return $url . '?' . http_build_query( $args );
-			}
-		);
 		Functions\when( 'get_bloginfo' )->justReturn( '7.1' );
 		Functions\when( 'wp_remote_retrieve_response_code' )->alias(
 			function ( $r ) {
@@ -229,5 +224,64 @@ class ApiClientTest extends TestCase {
 		)->andReturn( $this->response( 200, '{"success":true,"credits_remaining":9}' ) );
 		$r = $this->client()->balance();
 		$this->assertSame( 9, $r->credits_remaining );
+	}
+
+	/**
+	 * Capture requested URLs.
+	 *
+	 * @param array $urls Collected URLs (by reference).
+	 */
+	private function capture( array &$urls ): void {
+		Functions\when( 'wp_remote_get' )->alias(
+			function ( $url ) use ( &$urls ) {
+				$urls[] = $url;
+				return $this->response( 200, '{"success":true,"data":{}}' );
+			}
+		);
+	}
+
+	public function test_query_values_are_rfc3986_encoded() {
+		$urls = array();
+		$this->capture( $urls );
+		$client = $this->client();
+		$client->check_phone( '+15551234567', 'pk' );
+		$client->check_email( 'user+tag@x.com' );
+		$client->check_ip( '8.8.8.8', array( 'user_agent' => 'A&B; c#d' ) );
+		$this->assertStringContainsString( 'phone=%2B15551234567&country=PK', $urls[0] );
+		$this->assertStringContainsString( 'email=user%2Btag%40x.com', $urls[1] );
+		$this->assertStringContainsString( 'user_agent=A%26B%3B%20c%23d', $urls[2] );
+	}
+
+	public function test_server_error_with_success_body_is_not_ok() {
+		Functions\when( 'wp_remote_get' )->justReturn( $this->response( 503, '{"success":true,"data":{"x":1}}' ) );
+		$r = $this->client()->balance();
+		$this->assertFalse( $r->ok );
+		$this->assertSame( 'upstream', $r->error_code );
+		$this->assertSame( array(), $r->data );
+	}
+
+	public function test_disallowed_and_non_scalar_ip_args_are_dropped() {
+		Functions\when( 'apply_filters' )->alias(
+			function ( $hook, $value ) {
+				return 'fraudnova_ip_request_args' === $hook ? array(
+					'strictness'    => 2,
+					'foo'           => 'bar',
+					'user_language' => array( 'x' ),
+				) : $value;
+			}
+		);
+		$urls = array();
+		$this->capture( $urls );
+		$this->client()->check_ip( '8.8.8.8' );
+		$this->assertStringContainsString( 'ip=8.8.8.8&strictness=2', $urls[0] );
+		$this->assertStringNotContainsString( 'foo', $urls[0] );
+		$this->assertStringNotContainsString( 'user_language', $urls[0] );
+	}
+
+	public function test_negative_retry_after_is_clamped() {
+		Functions\when( 'wp_remote_get' )->justReturn(
+			$this->response( 429, '{"success":false}', array( 'retry-after' => '-5' ) )
+		);
+		$this->assertSame( 0, $this->client()->balance()->retry_after );
 	}
 }

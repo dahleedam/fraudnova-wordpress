@@ -19,49 +19,49 @@ final class Api_Response {
 	 *
 	 * @var bool
 	 */
-	public $ok = false;
+	public bool $ok = false;
 
 	/**
 	 * HTTP status (0 when no response was received).
 	 *
 	 * @var int
 	 */
-	public $status = 0;
+	public int $status = 0;
 
 	/**
 	 * Response data payload.
 	 *
 	 * @var array
 	 */
-	public $data = array();
+	public array $data = array();
 
 	/**
 	 * Error or informational message.
 	 *
 	 * @var string
 	 */
-	public $message = '';
+	public string $message = '';
 
 	/**
 	 * Credits remaining, when reported.
 	 *
 	 * @var int|null
 	 */
-	public $credits_remaining = null;
+	public ?int $credits_remaining = null;
 
 	/**
 	 * Seconds to wait before retrying, when reported.
 	 *
 	 * @var int|null
 	 */
-	public $retry_after = null;
+	public ?int $retry_after = null;
 
 	/**
 	 * Machine-readable error code ('' on success).
 	 *
 	 * @var string
 	 */
-	public $error_code = '';
+	public string $error_code = '';
 
 	/**
 	 * Constructor.
@@ -102,12 +102,15 @@ final class Api_Response {
 
 		$retry = wp_remote_retrieve_header( $response, 'retry-after' );
 		if ( is_scalar( $retry ) && is_numeric( $retry ) ) {
-			$r->retry_after = (int) $retry;
+			$r->retry_after = max( 0, (int) $retry );
 		}
 
 		$is_envelope = is_array( $json ) && array_key_exists( 'success', $json );
 
-		if ( $is_envelope && true === $json['success'] ) {
+		// Rate limits and server errors are mapped by status, whatever the body says.
+		$forced = ( 429 === $status || ( $status >= 500 && $status <= 599 ) );
+
+		if ( ! $forced && $is_envelope && true === $json['success'] ) {
 			$r->ok   = true;
 			$r->data = ( isset( $json['data'] ) && is_array( $json['data'] ) ) ? $json['data'] : array();
 			if ( isset( $json['credits_remaining'] ) && is_numeric( $json['credits_remaining'] ) ) {
