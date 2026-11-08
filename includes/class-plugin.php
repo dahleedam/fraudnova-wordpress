@@ -190,6 +190,18 @@ class Plugin {
 		if ( class_exists( 'WooCommerce' ) ) {
 			$this->orders()->register();
 		}
+
+		$settings = $this->settings();
+		// This runs on plugins_loaded priority 20; Contact Form 7 defines its classes on priority 10, so class_exists() is reliable here.
+		if ( get_option( 'users_can_register' ) && $settings->get( 'form_wp_registration' ) ) {
+			( new Integrations\Wp_Registration( $this ) )->register();
+		}
+		if ( class_exists( 'WooCommerce' ) && $settings->get( 'form_wc_registration' ) ) {
+			( new Integrations\Woocommerce_Registration( $this ) )->register();
+		}
+		if ( class_exists( 'WPCF7_Submission' ) && $settings->get( 'form_cf7' ) ) {
+			( new Integrations\Contact_Form_7( $this ) )->register();
+		}
 	}
 
 	/**

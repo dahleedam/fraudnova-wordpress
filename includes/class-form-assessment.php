@@ -55,6 +55,15 @@ final class Form_Assessment {
 	private function __construct() {}
 
 	/**
+	 * A non-blocking assessment (used when a check could not run).
+	 *
+	 * @return self
+	 */
+	public static function allowed(): self {
+		return new self();
+	}
+
+	/**
 	 * Decide.
 	 *
 	 * @param array    $results  Map of type => Check_Result.

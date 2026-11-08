@@ -20,6 +20,7 @@ define( 'FRAUDNOVA_URL', 'https://example.test/wp-content/plugins/fraudnova/' );
 
 require __DIR__ . '/stubs/class-wp-error.php';
 require __DIR__ . '/stubs/class-wc-order.php';
+require __DIR__ . '/stubs/class-wpcf7.php';
 
 require dirname( __DIR__ ) . '/includes/class-autoloader.php';
 \FraudNova\WordPress\Autoloader::register( FRAUDNOVA_PATH . 'includes' );
