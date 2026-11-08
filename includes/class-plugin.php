@@ -178,7 +178,6 @@ class Plugin {
 	 */
 	public function boot(): void {
 		add_action( 'plugins_loaded', array( $this, 'init_modules' ), 20 );
-		add_action( 'init', array( $this, 'load_textdomain' ) );
 		add_action( 'before_woocommerce_init', array( $this, 'declare_hpos_compatibility' ) );
 	}
 
@@ -209,15 +208,6 @@ class Plugin {
 		}
 
 		( new Privacy( $this ) )->register();
-	}
-
-	/**
-	 * Load translations.
-	 *
-	 * @return void
-	 */
-	public function load_textdomain(): void {
-		load_plugin_textdomain( 'fraudnova', false, dirname( plugin_basename( FRAUDNOVA_FILE ) ) . '/languages' );
 	}
 
 	/**

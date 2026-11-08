@@ -42,7 +42,7 @@ git tag vx.y.z
 git push origin main --tags
 ```
 
-The `Release` workflow checks the tag matches the plugin version, builds the zip and attaches it to a GitHub release.
+The `Release` workflow checks the tag matches the plugin version, runs phpcs and PHPUnit on PHP 7.4, builds the zip and attaches it to a GitHub release.
 
 ## 5. WordPress.org
 
@@ -59,13 +59,15 @@ cd fraudnova-svn
 
 # trunk = the unpacked zip contents
 rm -rf trunk/*
+rm -rf /tmp/fraudnova-build
 unzip -q ../dist/fraudnova-x.y.z.zip -d /tmp/fraudnova-build
 cp -R /tmp/fraudnova-build/fraudnova/. trunk/
 
 # tag
 svn cp trunk tags/x.y.z
 
-svn add --force trunk tags assets
+svn add --force trunk tags
+[ -d assets ] && svn add --force assets   # once you have added the directory assets
 svn status   # remove files deleted since the last release with `svn rm`
 svn commit -m "Release x.y.z"
 ```

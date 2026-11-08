@@ -25,23 +25,23 @@ What it does:
 * **Forms** – protects WordPress registration, WooCommerce My Account registration and Contact Form 7 against throwaway emails and abusive IP addresses. A buyer is never blocked during checkout.
 * **Test mode** – on by default. FraudNova scores and notes everything but never holds, cancels or blocks, so you can see what it would do first.
 * **Activity** – a log of recent checks, with emails, phone numbers and IP addresses masked.
-* **Credits and reuse** – the same IP address, phone number or email is not checked twice within 24 hours, and one order never uses more than three credits. A re-check from the order screen always runs fresh.
+* **Credits and reuse** – the same IP address, phone number or email is not checked twice within 24 hours. The automatic check of an order uses at most three credits (one per check type) and is never run twice for the same order. "Check again" on the order screen runs a fresh check and uses up to three more.
 
 = How it decides =
 
-Each check returns a fraud score from 0 to 100, and the order gets the highest one. At 60 or more the order is flagged for review; at 85 or more it is treated as high risk and held. Some signals count on their own, whatever the score: an invalid phone number holds the order, while a VOIP phone number, a disposable email address, a proxy, VPN or Tor connection, or recent abuse on the IP address or email flags it for review. You can change every threshold and rule, and choose whether review and high-risk orders are flagged, held or (high risk only) cancelled. Orders already paid by card are only flagged, never held. If the FraudNova API cannot be reached, the order goes through normally.
+Each check returns a fraud score from 0 to 100, and the order gets the highest one. At 60 or more the order is flagged for review; at 85 or more it is treated as high risk and held. Some signals count on their own, whatever the score: an invalid phone number holds the order, while a VOIP phone number, a disposable email address, a proxy, VPN or Tor connection, or recent abuse on the IP address or email flags it for review. You can change every threshold and rule, and choose whether review and high-risk orders are flagged, held or (high risk only) cancelled. Orders already paid by card are only flagged, never held. By default, if the FraudNova API cannot be reached, the order goes through normally.
 
 = External services =
 
-This plugin connects to the FraudNova API (https://fraudnova.com) to obtain a fraud score. When a new WooCommerce order is placed, it sends the customer's IP address, billing phone number, billing country and billing email address. When a protected registration or contact form is submitted, it sends the visitor's IP address and email address. Data is sent only after you save an API key and only for the features you have enabled; nothing is sent before that. No other external service is contacted. FraudNova terms of service: https://fraudnova.com/terms. Privacy policy: https://fraudnova.com/privacy.
+This plugin connects to the FraudNova API (https://fraudnova.com) to obtain a fraud score. When a new WooCommerce order is placed, it sends the customer's IP address, billing phone number, billing country and billing email address. When a protected registration or contact form is submitted, it sends the visitor's IP address and email address. Data is sent only after you save an API key and only for the features you have enabled; nothing is sent before that. The "Test connection" button calls the FraudNova API with only your API key, to read your remaining credits; the balance line on the Activity tab shows the result of the last test. No other external service is contacted. FraudNova terms of service: https://fraudnova.com/terms. Privacy policy: https://fraudnova.com/privacy.
 
 = Pricing =
 
-FraudNova uses prepaid credits: one credit per check, so up to three credits per order. New accounts get free trial credits after verifying their email address. More credits are sold as packs at https://fraudnova.com/dashboard/billing. There is no subscription.
+FraudNova uses prepaid credits: one credit per check, so the automatic check of an order uses up to three credits, and each "Check again" uses up to three more. New accounts get free trial credits after verifying their email address. More credits are sold as packs at https://fraudnova.com/dashboard/billing. There is no subscription.
 
 == Installation ==
 
-1. Install the plugin from Plugins → Add New, or upload the zip, and activate it.
+1. Install the plugin from Plugins → Add New Plugin, or upload the zip, and activate it.
 2. Create a free account and an API key at https://fraudnova.com/dashboard/api-keys.
 3. Paste the key under Settings → FraudNova and click "Test connection". It shows your credit balance.
 4. Leave test mode on for a few days and look at the notes on new orders and the Activity tab.
@@ -51,11 +51,11 @@ FraudNova uses prepaid credits: one credit per check, so up to three credits per
 
 = Does this slow down checkout? =
 
-Usually by less than two seconds. All checks for one order share an 8-second hard limit, and if the API is slow or unavailable the order goes through normally.
+Typically by a second or two. A hard limit of eight seconds applies and the order still goes through if the limit is hit. By default, if the API is unavailable the order goes through normally.
 
 = What happens when I run out of credits? =
 
-Checks are skipped and orders are not held, so nothing is blocked. You see a notice in the WordPress admin and get an email so you can top up.
+By default, checks are skipped and orders are not held, so nothing is blocked. You see a notice in the WordPress admin and get an email so you can top up. The email is sent at most once a day and can be turned off in the General settings.
 
 = Why was a real customer held? =
 

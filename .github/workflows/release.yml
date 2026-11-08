@@ -21,6 +21,20 @@ jobs:
             exit 1
           fi
 
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Coding standards
+        run: vendor/bin/phpcs
+
+      - name: Tests
+        run: vendor/bin/phpunit
+
       - name: Build
         run: bin/build-zip.sh
 

@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Risk column on the orders list and a FraudNova box with "Check again" on the order screen.
 - Protection for WordPress registration, WooCommerce My Account registration and Contact Form 7.
 - Test mode (on by default), masked Activity log, and a connection test that shows the credit balance.
-- 24-hour reuse of results, at most three credits per order, fail-open on every API error.
+- 24-hour reuse of results; the automatic check of an order uses at most three credits (one per check type) and never runs twice, while "Check again" runs a fresh check that uses up to three more; by default, orders and forms go through on every API error.
 - `FRAUDNOVA_API_KEY` constant support in wp-config.php.
 - Privacy policy text, order personal-data erasure and uninstall cleanup.
 - HPOS compatibility.
