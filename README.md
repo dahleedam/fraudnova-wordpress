@@ -1,4 +1,4 @@
-# FraudNova – Fraud Detection for WooCommerce and Forms
+# FraudNova – Fraud Detection for Orders and Forms
 
 A WordPress plugin that scores the IP address, billing phone number and billing email of every new WooCommerce order with the [FraudNova](https://fraudnova.com) API, holds risky cash-on-delivery orders for review, and protects WordPress registration, WooCommerce My Account registration and Contact Form 7 against throwaway emails and abusive IP addresses.
 

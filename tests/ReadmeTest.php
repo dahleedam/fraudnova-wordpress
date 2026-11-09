@@ -58,7 +58,9 @@ class ReadmeTest extends \PHPUnit\Framework\TestCase {
 	public function test_header_fields_match_readme() {
 		$plugin = $this->read( 'fraudnova.php' );
 		$readme = $this->read( 'readme.txt' );
-		foreach ( array( 'Requires at least', 'Tested up to', 'Requires PHP' ) as $field ) {
+		// "Tested up to" lives only in readme.txt: Plugin Check reads it from there and the
+		// plugin header is not a WordPress-defined field.
+		foreach ( array( 'Requires at least', 'Requires PHP' ) as $field ) {
 			$this->assertSame( $this->field( $plugin, $field ), $this->field( $readme, $field ), $field );
 		}
 	}

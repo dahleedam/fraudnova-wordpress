@@ -1,4 +1,4 @@
-=== FraudNova – Fraud Detection for WooCommerce and Forms ===
+=== FraudNova – Fraud Detection for Orders and Forms ===
 Contributors: fraudnova
 Tags: woocommerce, fraud, cash on delivery, spam, phone validation
 Requires at least: 6.0

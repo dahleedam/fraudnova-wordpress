@@ -16,7 +16,7 @@ msgstr ""
 
 #. Plugin Name of the plugin
 #: fraudnova.php:3
-msgid "FraudNova – Fraud Detection for WooCommerce and Forms"
+msgid "FraudNova – Fraud Detection for Orders and Forms"
 msgstr ""
 
 #. Plugin URI of the plugin
