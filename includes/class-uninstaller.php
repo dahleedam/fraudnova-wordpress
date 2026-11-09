@@ -35,9 +35,9 @@ final class Uninstaller {
 			$meta_like = $wpdb->esc_like( '_fraudnova_' ) . '%';
 			$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->postmeta} WHERE meta_key LIKE %s", $meta_like ) );
 
-			$orders_meta = $wpdb->prefix . 'wc_orders_meta';
+			$orders_meta = esc_sql( $wpdb->prefix . 'wc_orders_meta' );
 			if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $orders_meta ) ) ) === $orders_meta ) {
-				$wpdb->query( $wpdb->prepare( "DELETE FROM {$orders_meta} WHERE meta_key LIKE %s", $meta_like ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$wpdb->query( $wpdb->prepare( "DELETE FROM {$orders_meta} WHERE meta_key LIKE %s", $meta_like ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name is esc_sql()'d above.
 			}
 		}
 		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching

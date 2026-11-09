@@ -3,8 +3,9 @@
 Everything the directory needs is in this repo. `.wordpress-org/` holds the listing assets; it is excluded from the release zip by `.distignore`.
 
 ## 1. Account
-- Register the wordpress.org user **fraudnova** at https://login.wordpress.org/register (the readme's `Contributors:` line names it).
-  If the name is taken, register another and change `Contributors:` in `readme.txt` before building the zip.
+- Log in to wordpress.org as **dahleedam** (the owner's existing personal account; the readme's `Contributors:` line names it).
+  The uploading account owns the plugin, commits to SVN and answers support-forum threads. To show the brand on the plugin
+  page, set that profile's display name to "FraudNova" under https://profiles.wordpress.org/me/profile/edit/.
 
 ## 1b. Pre-flight checks (done 2026-11-09)
 - **Readme validator** (wordpress.org/plugins/developers/readme-validator/): first run failed on the display name — "woocommerce" is a
