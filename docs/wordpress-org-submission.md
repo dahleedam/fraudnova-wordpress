@@ -6,6 +6,16 @@ Everything the directory needs is in this repo. `.wordpress-org/` holds the list
 - Register the wordpress.org user **fraudnova** at https://login.wordpress.org/register (the readme's `Contributors:` line names it).
   If the name is taken, register another and change `Contributors:` in `readme.txt` before building the zip.
 
+## 1b. Pre-flight checks (done 2026-11-09)
+- **Readme validator** (wordpress.org/plugins/developers/readme-validator/): first run failed on the display name — "woocommerce" is a
+  restricted term that may not appear in the display name or permalink. Renamed to "FraudNova – Fraud Detection for Orders and Forms".
+  The remaining notes are expected until the account exists (unknown contributor `fraudnova`) and optional (no donate link).
+- **Plugin Check (PCP)** — the scanner the review queue runs. Install it on the local test store and run it on the plugin:
+  `wp plugin install plugin-check --activate` then `wp plugin check fraudnova --format=table`. Fix every ERROR; WARNINGs are judgement calls.
+- Guidelines checked by hand: GPL-2.0-or-later in header and readme, no bundled libraries, no output or links on the public site,
+  only the FraudNova API is contacted and it is disclosed under "External services", no tracking without the key being saved,
+  `Tested up to` only in readme.txt.
+
 ## 2. Submit the plugin
 - Build or take the release zip: `dist/fraudnova-1.0.0.zip` (also attached to the GitHub release v1.0.0).
 - Upload it at https://wordpress.org/plugins/developers/add/ while logged in as that user.
