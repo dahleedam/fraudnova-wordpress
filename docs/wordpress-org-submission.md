@@ -9,17 +9,30 @@ Everything the directory needs is in this repo. `.wordpress-org/` holds the list
 
 ## 1b. Pre-flight checks (done 2026-11-09)
 - **Readme validator** (wordpress.org/plugins/developers/readme-validator/): first run failed on the display name — "woocommerce" is a
-  restricted term that may not appear in the display name or permalink. Renamed to "FraudNova – Fraud Detection for Orders and Forms".
-  The remaining notes are expected until the account exists (unknown contributor `fraudnova`) and optional (no donate link).
-- **Plugin Check (PCP)** — the scanner the review queue runs. Install it on the local test store and run it on the plugin:
-  `wp plugin install plugin-check --activate` then `wp plugin check fraudnova --format=table`. Fix every ERROR; WARNINGs are judgement calls.
+  restricted term that may not appear in the display name or permalink. The only remaining note is optional (no donate link).
+- **Name = slug.** The permanent slug is derived from the main file's `Plugin Name:` header, and Plugin Check requires the
+  readme title to equal that header. Every doc and guide promises `wordpress.org/plugins/fraudnova/`, so both are the plain
+  `FraudNova` (the descriptive copy lives in the readme's short-description line). Do not lengthen either before upload.
+- **Plugin Check (PCP) 2.2.0 — clean** (`wp plugin check fraudnova --format=table --include-experimental` on the local test store:
+  "No errors found"). The one warning it raised, an unescaped HPOS table name in the uninstaller, is fixed with `esc_sql()`.
+  Re-run it after any code change; fix every ERROR, judge WARNINGs.
 - Guidelines checked by hand: GPL-2.0-or-later in header and readme, no bundled libraries, no output or links on the public site,
   only the FraudNova API is contacted and it is disclosed under "External services", no tracking without the key being saved,
   `Tested up to` only in readme.txt.
 
 ## 2. Submit the plugin
-- Build or take the release zip: `dist/fraudnova-1.0.0.zip` (also attached to the GitHub release v1.0.0).
-- Upload it at https://wordpress.org/plugins/developers/add/ while logged in as that user.
+What the logged-in form at https://wordpress.org/plugins/developers/add/ asks (read 2026-11-09; 661 plugins were in the queue):
+- Three "Step 1" checkboxes: read the FAQ, read the guidelines, tested with Plugin Check and resolved its findings. All true.
+- "Naming and ownership" checkboxes: the name is not confusingly similar to anything (searched), and the uploading account
+  represents the plugin owner. **The form names the account email (`dahleedam@gmail.com`) and says ownership of a brand-led
+  name is verified by that email.** The plugin is called FraudNova, so either switch the wordpress.org account email to the
+  `@fraudnova.com` mailbox before uploading, or be ready to prove ownership when the reviewer asks (reply from that mailbox).
+- "Trialware" checkbox: no artificial limits in the plugin code. True — credits are a service-side price, nothing in the
+  plugin is gated.
+- Two acknowledgement checkboxes (guidelines may lead to rejection; hosting is conditional on compliance).
+- Upload the zip (max 10 MB): `dist/fraudnova-1.0.0.zip` (also attached to the GitHub release v1.0.0).
+- The slug can be changed ONCE after upload, before review starts, via a link on that same page — check it reads `fraudnova`.
+  Once approved the plugin cannot be renamed.
 - Expect: an automated scan (minutes), then a human review in roughly 1–14 days, usually one email listing required
   changes. Reply by uploading a fixed zip; do not open a second submission.
 - On approval you get SVN access: `https://plugins.svn.wordpress.org/fraudnova/`.

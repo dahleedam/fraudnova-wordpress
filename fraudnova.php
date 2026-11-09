@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: FraudNova – Fraud Detection for Orders and Forms
+ * Plugin Name: FraudNova
  * Plugin URI: https://fraudnova.com/docs#wordpress
  * Description: Scores the IP address, phone number and email of every new WooCommerce order and holds risky cash-on-delivery orders for review. Blocks throwaway emails and abusive traffic on registration and Contact Form 7 forms.
  * Version: 1.0.0
