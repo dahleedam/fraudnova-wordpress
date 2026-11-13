@@ -37,6 +37,23 @@ What the logged-in form at https://wordpress.org/plugins/developers/add/ asks (r
   changes. Reply by uploading a fixed zip; do not open a second submission.
 - On approval you get SVN access: `https://plugins.svn.wordpress.org/fraudnova/`.
 
+## 2b. Review round 1 (email received 2026-11-13, "Review in Progress", Review ID AUTOPREREVIEW … 12Nov26/4.4A1)
+Automated pre-review, three items. Reply **in that thread only**, short, after the fixed zip is uploaded at the "Add your plugin"
+page as `dahleedam`.
+- **Guideline 11 (admin notices).** The "API key rejected" and "out of credits" notices rendered on every admin screen. Fixed:
+  `Admin\Notices` now gates every notice behind `on_plugin_screen()` — Plugins screen, Settings → FraudNova and the WooCommerce
+  order screens (`Admin::screen_ids()`) — so nothing shows on the dashboard or other plugins' pages. Tests pin both lists.
+- **Sanitization for `register_setting()`.** False positive: the scanner did not recognise the array callable
+  `array( $this->plugin->settings(), 'sanitize' )`. `Settings::sanitize()` whitelists every key against `defaults()` and
+  types each one (bool cast, clamped ints, enum allow-lists, `sanitize_text_field` / `wp_strip_all_tags`). No code change;
+  say so in one line in the reply.
+- **Ownership.** The account email is `dahleedam@gmail.com`, the plugin is branded FraudNova. Proof chosen: a DNS TXT record at the
+  root of `fraudnova.com` with the value `wordpressorg-dahleedam-verification` (added in Cloudflare DNS, proxy n/a for TXT).
+  Verify with `dig +short TXT fraudnova.com` before replying. Alternative they offer: switch the wordpress.org account email to an
+  `@fraudnova.com` mailbox (future review mail then goes there).
+- Their fetcher reported "Resolving timed out" on the Author URI; informational, nothing to change.
+- Pre-flight re-run on the fixed build: PHPUnit 272 tests green, phpcs clean, Plugin Check 2.2.0 "No errors found".
+
 ## 3. First SVN commit (after approval)
 ```
 svn co https://plugins.svn.wordpress.org/fraudnova fraudnova-svn

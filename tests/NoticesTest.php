@@ -76,6 +76,7 @@ class NoticesTest extends TestCase {
 			}
 		);
 		Functions\when( 'current_user_can' )->justReturn( true );
+		Functions\when( 'wc_get_page_screen_id' )->justReturn( 'woocommerce_page_wc-orders' );
 		Functions\when( 'wp_kses_post' )->returnArg( 1 );
 		Functions\when( 'admin_url' )->alias(
 			function ( $p = '' ) {
@@ -136,7 +137,8 @@ class NoticesTest extends TestCase {
 
 	public function test_unauthorized_renders_a_persistent_error() {
 		$this->error( 'unauthorized' );
-		$html = $this->render();
+		$this->screen = 'plugins';
+		$html         = $this->render();
 
 		$this->assertStringContainsString( 'notice-error', $html );
 		$this->assertStringNotContainsString( 'is-dismissible', $html );
@@ -147,7 +149,8 @@ class NoticesTest extends TestCase {
 
 	public function test_insufficient_credits_renders_a_warning_with_billing_link() {
 		$this->error( 'insufficient_credits' );
-		$html = $this->render();
+		$this->screen = 'shop_order';
+		$html         = $this->render();
 
 		$this->assertStringContainsString( 'notice-warning', $html );
 		$this->assertStringContainsString( 'FraudNova: your account is out of credits, so checks are skipped and orders are not held.', $html );
@@ -157,6 +160,7 @@ class NoticesTest extends TestCase {
 
 	public function test_notice_never_sends_mail() {
 		$this->error( 'insufficient_credits' );
+		$this->screen = 'plugins';
 		Functions\expect( 'wp_mail' )->never();
 
 		$this->assertStringContainsString( 'Buy credits', $this->render() );
@@ -198,6 +202,25 @@ class NoticesTest extends TestCase {
 
 	public function test_error_message_is_escaped() {
 		$this->error( 'unauthorized', '<script>x</script>' );
+		$this->screen = 'plugins';
 		$this->assertStringNotContainsString( '<script>', $this->render() );
+	}
+
+	public function test_account_notices_hidden_on_the_dashboard_and_other_screens() {
+		foreach ( array( 'dashboard', 'edit-post', 'woocommerce_page_wc-settings' ) as $screen ) {
+			$this->screen = $screen;
+			$this->error( 'unauthorized' );
+			$this->assertSame( '', $this->render(), $screen );
+			$this->error( 'insufficient_credits' );
+			$this->assertSame( '', $this->render(), $screen );
+		}
+	}
+
+	public function test_account_notices_shown_on_order_screens() {
+		foreach ( array( 'settings_page_fraudnova', 'shop_order', 'edit-shop_order', 'woocommerce_page_wc-orders' ) as $screen ) {
+			$this->screen = $screen;
+			$this->error( 'unauthorized' );
+			$this->assertStringContainsString( 'notice-error', $this->render(), $screen );
+		}
 	}
 }

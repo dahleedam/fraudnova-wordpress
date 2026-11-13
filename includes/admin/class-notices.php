@@ -13,6 +13,10 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Shows account problems (rejected key, no credits, missing key) to administrators.
+ *
+ * Notices render only where they are actionable: the Plugins screen, the plugin's own settings
+ * page and the WooCommerce order screens. They never appear on the dashboard or other plugins'
+ * pages (directory guideline 11).
  */
 class Notices {
 
@@ -53,10 +57,14 @@ class Notices {
 			return;
 		}
 
+		if ( ! $this->on_plugin_screen() ) {
+			return;
+		}
+
 		$settings = $this->plugin->settings();
 
 		if ( ! $settings->has_api_key() ) {
-			if ( $this->any_feature_enabled() && in_array( $this->screen_id(), array( 'plugins', 'settings_page_' . Settings_Page::SLUG ), true ) ) {
+			if ( $this->any_feature_enabled() ) {
 				$this->output(
 					'info',
 					sprintf(
@@ -131,6 +139,16 @@ class Notices {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Whether the current screen is one where a FraudNova notice is actionable.
+	 *
+	 * @return bool
+	 */
+	private function on_plugin_screen(): bool {
+		$ids = array_merge( array( 'plugins' ), ( new Admin( $this->plugin ) )->screen_ids() );
+		return in_array( $this->screen_id(), $ids, true );
 	}
 
 	/**
