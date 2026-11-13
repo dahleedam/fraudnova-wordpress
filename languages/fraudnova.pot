@@ -9,14 +9,20 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-08T08:18:27+00:00\n"
+"POT-Creation-Date: 2026-11-13T00:45:50+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: fraudnova\n"
 
 #. Plugin Name of the plugin
+#. Author of the plugin
 #: fraudnova.php:3
-msgid "FraudNova – Fraud Detection for Orders and Forms"
+#: fraudnova.php:11
+#: includes/admin/class-admin.php:71
+#: includes/admin/class-admin.php:72
+#: includes/admin/class-order-meta-box.php:43
+#: includes/admin/class-settings-page.php:296
+msgid "FraudNova"
 msgstr ""
 
 #. Plugin URI of the plugin
@@ -29,22 +35,13 @@ msgstr ""
 msgid "Scores the IP address, phone number and email of every new WooCommerce order and holds risky cash-on-delivery orders for review. Blocks throwaway emails and abusive traffic on registration and Contact Form 7 forms."
 msgstr ""
 
-#. Author of the plugin
-#: fraudnova.php:12
-#: includes/admin/class-admin.php:71
-#: includes/admin/class-admin.php:72
-#: includes/admin/class-order-meta-box.php:43
-#: includes/admin/class-settings-page.php:296
-msgid "FraudNova"
-msgstr ""
-
 #. Author URI of the plugin
-#: fraudnova.php:13
+#: fraudnova.php:12
 msgid "https://fraudnova.com"
 msgstr ""
 
 #. translators: 1: minimum PHP version, 2: minimum WordPress version.
-#: fraudnova.php:52
+#: fraudnova.php:51
 #, php-format
 msgid "FraudNova requires PHP %1$s or newer and WordPress %2$s or newer. The plugin is inactive."
 msgstr ""
@@ -93,19 +90,19 @@ msgid "Unexpected response from FraudNova."
 msgstr ""
 
 #. translators: %s: settings page URL.
-#: includes/admin/class-notices.php:64
+#: includes/admin/class-notices.php:72
 #, php-format
 msgid "FraudNova needs an API key. <a href=\"%s\">Add it in Settings → FraudNova</a>."
 msgstr ""
 
 #. translators: %s: settings page URL.
-#: includes/admin/class-notices.php:78
+#: includes/admin/class-notices.php:86
 #, php-format
 msgid "FraudNova: your API key was rejected. <a href=\"%s\">Check the settings</a>."
 msgstr ""
 
 #. translators: %s: billing page URL.
-#: includes/admin/class-notices.php:90
+#: includes/admin/class-notices.php:98
 #, php-format
 msgid "FraudNova: your account is out of credits, so checks are skipped and orders are not held. <a href=\"%s\">Buy credits</a>."
 msgstr ""
